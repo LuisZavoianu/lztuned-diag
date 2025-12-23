@@ -5,114 +5,121 @@ import plotly.express as px
 from plotly.subplots import make_subplots
 import numpy as np
 
-# --- CONFIGURARE INTERFAȚĂ ---
-st.set_page_config(page_title="LZTuned Omniscience", layout="wide")
+# --- CONFIGURARE INTERFAȚĂ HIGH-TECH ---
+st.set_page_config(page_title="LZTuned Apex Predator", layout="wide")
 
 st.markdown("""
     <style>
-    .stApp { background-color: #FFFFFF; color: #000000; }
-    .report-header { background-color: #f1f3f5; padding: 15px; border-radius: 10px; border-left: 10px solid #007bff; margin-bottom: 20px; }
-    h1, h2, h3 { color: #002b5e !important; }
-    .stMetric { border: 1px solid #eee; padding: 10px; border-radius: 8px; background: #fafafa; }
+    .stApp { background-color: #0E1117; color: #E0E0E0; }
+    .report-header { background-color: #1B1E23; padding: 20px; border-radius: 10px; border-bottom: 3px solid #00D1FF; margin-bottom: 25px; }
+    h1, h2, h3 { color: #00D1FF !important; font-family: 'Orbitron', sans-serif; }
+    .stMetric { background-color: #161A1D; border: 1px solid #30363D; padding: 15px; border-radius: 10px; }
+    .stTab { background-color: #0E1117 !important; }
     </style>
     """, unsafe_allow_html=True)
 
-def lztuned_omniscience():
-    st.markdown("<div class='report-header'><h1>LZTuned Omniscience Engine</h1><p>Lead Engineer: <b>Luis Zavoianu</b> | Sistem de Extracție Totală a Datelor</p></div>", unsafe_allow_html=True)
+def lztuned_apex():
+    st.markdown("<div class='report-header'><h1>LZTuned Apex Predator v4.0</h1><p>Lead Systems Engineer: <b>Luis Zavoianu</b> | High-Performance Telemetry</p></div>", unsafe_allow_html=True)
 
-    file = st.file_uploader("Încarcă fișierul LOG pentru procesare completă", type="csv")
+    file = st.file_uploader("Încarcă Log Master (Pro Level CSV)", type="csv")
 
     if file:
         df = pd.read_csv(file, sep=';')
         
-        # --- CALCULI AVANSAȚI (DATA MINING) ---
-        df['Inj_Duty_Cycle'] = (df['Injection time'] * df['Motor RPM']) / 1200
-        df['Air_Per_Rev'] = df['Air mass'] / (df['Motor RPM'].replace(0, 1))
-        df['Thermal_Delta_Engine'] = df['Motor temp.'] - df['Radiator coolant outlet temp.']
-        df['Lambda_Diff'] = (df['Lambda #1 integrator '] - df['Lambda #2 integrator']).abs()
-        df['Spark_Stability'] = df['Ignition angle'].rolling(window=5).std()
-        df['Volt_Efficiency'] = (df['Battery voltage'] / 14.4) * 100
+        # --- MOTOR DE CALCUL ENGINE DYNAMICS (MATH CHANNELS) ---
+        # 1. Virtual Dyno (HP & Torque estimat prin Masa Aer & Randament Volumic)
+        df['Engine_Load_Norm'] = df['Engine load'] / 100
+        df['Est_HP'] = (df['Air mass'] / 1.18) * (1 + (df['Ignition angle'] * 0.01))
+        df['Est_Torque'] = (df['Est_HP'] * 5252) / df['Motor RPM'].replace(0, 1)
+        
+        # 2. Burn Speed & Stability (Calculat prin derivata avansului)
+        df['Spark_Advance_Rate'] = df['Ignition angle'].diff() / df['time'].diff()
+        
+        # 3. Analiză Gaze (Lambda Error & Balance)
+        df['Target_Lambda'] = 0.85 # Valoare ideală estimată pentru sarcină
+        df['Lambda_Dev_B1'] = df['Lambda #1 integrator '] - df['Target_Lambda']
+        
+        # 4. Thermal Stress Index (TSI)
+        df['Thermal_Stress'] = (df['Oil temp.'] * 0.6) + (df['Motor temp.'] * 0.4)
+        
+        # 5. Volumetric Efficiency Approximation
+        df['VE_Calculated'] = (df['Air mass'] * 287.05 * (df['Intake temp.'] + 273.15)) / (101325 * (df['Motor RPM']/60) * 0.002) # Calculat pentru 2.0L
 
-        # --- KPI DASHBOARD (8 PARAMETRI) ---
-        m_cols = st.columns(8)
-        m_cols[0].metric("RPM Peak", int(df['Motor RPM'].max()))
-        m_cols[1].metric("Air Mass Peak", df['Air mass'].max())
-        m_cols[2].metric("Inj Duty %", f"{round(df['Inj_Duty_Cycle'].max(), 1)}%")
-        m_cols[3].metric("Min Ignition", f"{df['Ignition angle'].min()}°")
-        m_cols[4].metric("Max Oil T", f"{df['Oil temp.'].max()}°C")
-        m_cols[5].metric("Max Water T", f"{df['Motor temp.'].max()}°C")
-        m_cols[6].metric("Volt Min", f"{df['Battery voltage'].min()}V")
-        m_cols[7].metric("Max Speed", f"{df['Speed'].max()} km/h")
+        # --- DASHBOARD DE METRICE CRITICE ---
+        st.write("### 💎 Telemetrie Peak Performance")
+        m_cols = st.columns(6)
+        m_cols[0].metric("Virtual HP Peak", f"{round(df['Est_HP'].max(), 1)} HP")
+        m_cols[1].metric("Virtual Torque", f"{round(df['Est_Torque'].max(), 1)} Nm")
+        m_cols[2].metric("Max VE (%)", f"{round(df['VE_Calculated'].max(), 1)}%")
+        m_cols[3].metric("TSI (Stress)", f"{round(df['Thermal_Stress'].max(), 1)}")
+        m_cols[4].metric("G-Force Est.", f"{round(df['Speed'].diff().max() / 9.8, 2)} G")
+        m_cols[5].metric("Battery SOH", f"{round(df['Battery voltage'].mean(), 2)}V")
 
-        # --- MODULE ANALIZĂ ---
-        t1, t2, t3, t4, t5, t6 = st.tabs([
-            "📊 TELEMETRIE MASTER", "⛽ COMBUSTIBIL & LAMBDA", "⚡ APRINDERE & KNOCK", 
-            "🌡️ SISTEME TERMICE", "🔬 STATISTICI COMPLETE", "📜 REZOLUȚII LUIS ZAVOIANU"
-        ])
+        # --- MODULE ANALIZĂ AVANSATĂ ---
+        tabs = st.tabs(["🏎️ DYNAMOMETER", "🌪️ AIR & VE FLOW", "🔥 COMBUSTION", "❄️ THERMAL DYNAMICS", "📊 OMNI-DATA MATRIX"])
 
-        with t1:
-            st.subheader("Sincronizare Totală Senzori")
-            fig_master = make_subplots(rows=5, cols=1, shared_xaxes=True, vertical_spacing=0.02)
-            fig_master.add_trace(go.Scatter(x=df['time'], y=df['Motor RPM'], name="RPM", line=dict(color='blue')), row=1, col=1)
-            fig_master.add_trace(go.Scatter(x=df['time'], y=df['Air mass'], name="Air Mass", line=dict(color='cyan')), row=2, col=1)
-            fig_master.add_trace(go.Scatter(x=df['time'], y=df['Injection time'], name="Inj Time", line=dict(color='red')), row=3, col=1)
-            fig_master.add_trace(go.Scatter(x=df['time'], y=df['Ignition angle'], name="Ignition", line=dict(color='purple')), row=4, col=1)
-            fig_master.add_trace(go.Scatter(x=df['time'], y=df['Battery voltage'], name="Voltage", line=dict(color='gold')), row=5, col=1)
-            fig_master.update_layout(height=900, template="plotly_white")
-            st.plotly_chart(fig_master, use_container_width=True)
+        with tabs[0]:
+            st.subheader("Virtual Dyno & Acceleration Analysis")
+            fig_dyno = make_subplots(specs=[[{"secondary_y": True}]])
+            fig_dyno.add_trace(go.Scatter(x=df['Motor RPM'], y=df['Est_HP'], name="Power (HP)", line=dict(color='#00D1FF', width=4)), secondary_y=False)
+            fig_dyno.add_trace(go.Scatter(x=df['Motor RPM'], y=df['Est_Torque'], name="Torque (Nm)", line=dict(color='#FF4B4B', width=2, dash='dot')), secondary_y=True)
+            fig_dyno.update_layout(title="Curba de Putere Estimată (Math Channels)", template="plotly_dark")
+            st.plotly_chart(fig_dyno, use_container_width=True)
 
-        with t2:
-            st.subheader("Analiză Detaliată Amestec")
+        with tabs[1]:
+            st.subheader("Eficiență Volumetrică & Flux de Aer")
+            # Vizualizare 3D a modului în care motorul "trage" aer
+            fig_3d_air = px.scatter_3d(df, x='Motor RPM', y='Engine load', z='Air mass', color='VE_Calculated',
+                                     title="3D Airflow Mapping (RPM vs Load vs Flow)")
+            st.plotly_chart(fig_3d_air, use_container_width=True)
+
+        with tabs[2]:
+            st.subheader("Combustion Stability & Knock Analysis")
             c1, c2 = st.columns(2)
             with c1:
-                # Recuperăm datele de încălzire sonde lambda
-                fig_heat = px.line(df, x="time", y=["Lambda #1 pre-cat heating", "Lambda #2 pre-cat heating"], title="Activitate Încălzire Sonde")
-                st.plotly_chart(fig_heat, use_container_width=True)
+                # Corelație Ignition vs Knock retard
+                fig_ign = px.scatter(df, x="time", y="Ignition angle", size="Knock sensor #1", color="Knock sensor #1",
+                                    color_continuous_scale='Reds', title="Spark Stability vs Knock Activity")
+                st.plotly_chart(fig_ign, use_container_width=True)
             with c2:
-                fig_int = px.scatter(df, x="Engine load", y=["Lambda #1 integrator ", "Lambda #2 integrator"], title="Integratori vs Sarcină")
-                st.plotly_chart(fig_int, use_container_width=True)
+                # Analiză Timp Injecție vs RPM
+                fig_inj = px.histogram(df, x="Injection time", nbins=50, title="Distribuția Timpului de Injecție (Duty Cycle Stress)")
+                st.plotly_chart(fig_inj, use_container_width=True)
 
-        with t3:
-            st.subheader("Control Detonații și Stabilitate Aprindere")
-            c1, c2 = st.columns(2)
-            with c1:
-                fig_knock = px.area(df, x="time", y=["Knock sensor #1", "Knock sensor #2"], title="Activitate Senzori Knock (V)")
-                st.plotly_chart(fig_knock, use_container_width=True)
-            with c2:
-                fig_scat = px.scatter(df, x="Motor RPM", y="Ignition angle", color="Engine load", title="Scatter Plot: Avans vs Turație")
-                st.plotly_chart(fig_scat, use_container_width=True)
+        with tabs[3]:
+            st.subheader("Thermodynamic Exchange (Engine vs Radiator)")
+            fig_heat = go.Figure()
+            fig_heat.add_trace(go.Scatter(x=df['time'], y=df['Motor temp.'], name="Engine Exit Temp", line=dict(color='red')))
+            fig_heat.add_trace(go.Scatter(x=df['time'], y=df['Radiator coolant outlet temp.'], name="Radiator Exit Temp", line=dict(color='blue')))
+            fig_heat.add_trace(go.Scatter(x=df['time'], y=df['Intake temp.'], name="Intake Air Temp", fill='tonexty'))
+            fig_heat.update_layout(title="Thermal Management Over Time", template="plotly_dark")
+            st.plotly_chart(fig_heat, use_container_width=True)
 
-        with t4:
-            st.subheader("Management Termic și Flux Radiator")
-            fig_temp = px.line(df, x="time", y=["Motor temp.", "Radiator coolant outlet temp.", "Oil temp.", "Intake temp.", "Electric fan speed"], title="Monitorizare Termodinamică")
-            st.plotly_chart(fig_temp, use_container_width=True)
-
-        with t5:
-            st.subheader("Matricea de Corelație și Statistici")
-            corr = df.corr()
-            fig_corr = px.imshow(corr, text_auto=".2f", aspect="auto", color_continuous_scale='RdBu_r')
+        with tabs[4]:
+            st.subheader("Omniscience Data Matrix")
+            # Afișăm TOATE datele corelate
+            corr_matrix = df.corr()
+            fig_corr = px.imshow(corr_matrix, text_auto=".2f", aspect="auto", color_continuous_scale='Viridis')
             st.plotly_chart(fig_corr, use_container_width=True)
-            st.write("### Tabel Date Brute (Full Description)")
-            st.dataframe(df.describe(), use_container_width=True)
+            
+            st.write("### Master Table (Full Stats)")
+            st.dataframe(df.describe().T, use_container_width=True)
 
-        with t6:
-            st.header("📋 Rezoluții Tehnice - Luis Zavoianu")
-            r1, r2, r3 = st.columns(3)
-            with r1:
-                st.write("**FLUX & AER**")
-                st.write(f"- Peak Air: {df['Air mass'].max()} kg/h")
-                st.write(f"- TPS Max: {df['Throttle pos.'].max()}%")
-            with r2:
-                st.write("**COMBUSTIE**")
-                st.write(f"- Min Ign: {df['Ignition angle'].min()}°")
-                st.write(f"- Lambda Diff: {round(df['Lambda_Diff'].mean(), 4)}")
-            with r3:
-                st.write("**SISTEM ELECTRIC**")
-                st.write(f"- Volt Stability: {round(df['Battery voltage'].std(), 3)}")
-                st.write(f"- Fan Activity: {'Activ' if df['Electric fan speed'].max() > 0 else 'Inactiv'}")
+        # --- INSIGHT-URI GENERATE AUTOMAT (EXPERT SYSTEM) ---
+        st.markdown("### 📜 Raport de Inginerie - Luis Zavoianu")
+        with st.expander("VEZI DETALII ANALIZĂ AVANSATĂ", expanded=True):
+            r_col1, r_col2 = st.columns(2)
+            with r_col1:
+                st.write("**Sistemul de Aer:**")
+                st.write(f"- Eficiență Peak: {round(df['VE_Calculated'].max(), 2)}%")
+                st.write(f"- Viteza Aerului: {'Optimă' if df['Air mass'].max() > 150 else 'Scăzută (Verificați Turbo/Admisie)'}")
+            with r_col2:
+                st.write("**Stabilitate Electrică:**")
+                st.write(f"- Variație Tensiune: {round(df['Battery voltage'].std(), 4)}V")
+                st.write(f"- Lambda Balance: {'Perfect' if df['Lambda_Diff'].mean() < 0.02 else 'Dezechilibrat'}")
 
         st.markdown("---")
-        st.write(f"**LZTuned Omniscience Engine** | Lead: **Luis Zavoianu**")
+        st.write(f"**LZTuned Apex Predator** | Build: 2025.Elite | Lead: **Luis Zavoianu**")
 
 if __name__ == "__main__":
-    lztuned_omniscience()
+    lztuned_apex()
