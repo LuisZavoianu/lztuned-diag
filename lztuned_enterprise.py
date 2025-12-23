@@ -6,177 +6,265 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
 # ======================================================
-# CONFIG & STYLE
+# CONFIG
 # ======================================================
-st.set_page_config(page_title="LZTuned Ultimate v20.0", layout="wide", initial_sidebar_state="collapsed")
+APP_TITLE = "LZTuned Architect Ultimate v20.1"
 
+st.set_page_config(
+    page_title=APP_TITLE,
+    layout="wide",
+    initial_sidebar_state="collapsed"
+)
+
+# ======================================================
+# STYLE
+# ======================================================
 st.markdown("""
 <style>
-    .stApp { background-color: #0d1117; color: #c9d1d9; }
-    .header-box { 
-        background: linear-gradient(135deg, #001529 0%, #0050b3 100%); 
-        padding: 30px; border-radius: 15px; border: 1px solid #30363d; margin-bottom: 30px; text-align: center;
-    }
-    .status-card { padding: 20px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #30363d; }
-    .sensor-card { background: #161b22; padding: 15px; border-radius: 10px; border: 1px solid #30363d; margin-bottom: 10px; }
-    .ok { background-color: #161b22; border-left: 6px solid #238636; }
-    .warn { background-color: #2a2200; border-left: 6px solid #d29922; }
-    .crit { background-color: #2d1616; border-left: 6px solid #da3633; }
-    h1, h2, h3 { color: #58a6ff !important; }
+.stApp { background-color: #0d1117; color: #c9d1d9; }
+
+.header-box {
+    background: linear-gradient(135deg, #001529 0%, #0050b3 100%);
+    padding: 30px;
+    border-radius: 16px;
+    border: 1px solid #30363d;
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.section-title { margin-top: 10px; }
+
+.status-card {
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 15px;
+    border: 1px solid #30363d;
+}
+
+.sensor-card {
+    background: #161b22;
+    padding: 15px;
+    border-radius: 10px;
+    border: 1px solid #30363d;
+    margin-bottom: 10px;
+}
+
+.ok { background-color: #161b22; border-left: 6px solid #238636; }
+.warn { background-color: #2a2200; border-left: 6px solid #d29922; }
+.crit { background-color: #2d1616; border-left: 6px solid #da3633; }
+
+h1, h2, h3 { color: #58a6ff !important; }
 </style>
 """, unsafe_allow_html=True)
 
 # ======================================================
-# DATA DICTIONARY
+# SENSOR DICTIONARY
 # ======================================================
 SENSOR_DESCRIPTIONS = {
-    "Motor RPM": "Viteza de rotație a arborelui cotit. Esențială pentru axa X în hărțile de tuning.",
-    "Engine load": "Sarcina motorului. Indică volumul de aer raportat la capacitatea cilindrică.",
-    "Air mass": "Cantitatea de aer absorbită. Determinantă pentru calculul amestecului (MAF).",
-    "Ignition angle": "Momentul scânteii. Valorile prea mici indică retard cauzat de detonație.",
-    "Injection time": "Durata deschiderii injectoarelor (ms). Peste 20ms indică saturație.",
-    "Knock sensor #1": "Senzor piezo care detectează vibrații de detonație în bloc.",
-    "Motor temp.": "Temperatura antigelului. Optim: 85-95°C.",
-    "Oil temp.": "Temperatura uleiului. Peste 115°C necesită răcire suplimentară.",
-    "Battery voltage": "Tensiunea sistemului. Trebuie să fie stabilă (>13.5V în mers)."
+    "Motor RPM": "Turația arborelui cotit. Axă principală pentru toate hărțile ECU.",
+    "Engine load": "Sarcina motorului raportată la capacitatea volumetrică.",
+    "Air mass": "Debit masic de aer. Determină cantitatea de combustibil necesară.",
+    "Ignition angle": "Avansul aprinderii. Retardul indică knock sau protecție ECU.",
+    "Injection time": "Durata de deschidere a injectorului (ms).",
+    "Knock sensor #1": "Senzor de detonație – banc 1.",
+    "Knock sensor #2": "Senzor de detonație – banc 2.",
+    "Motor temp.": "Temperatura lichidului de răcire.",
+    "Oil temp.": "Temperatura uleiului motor.",
+    "Battery voltage": "Tensiunea sistemului electric."
 }
 
 # ======================================================
-# UTILS & DATA ENGINE
-# =====================-=================================
-def safe_col(df, name):
+# UTILITIES
+# ======================================================
+def safe_col(df: pd.DataFrame, name: str) -> pd.Series:
+    """Asigură existența coloanei."""
     if name not in df.columns:
         df[name] = np.nan
     return df[name]
 
+# ======================================================
+# DATA ENGINE
+# ======================================================
 def compute_channels(df: pd.DataFrame) -> pd.DataFrame:
-    # Curățare turație
-    rpm = safe_col(df, 'Motor RPM').replace(0, np.nan)
-    
-    # Calcule derivate
-    df['Inj_Duty'] = (safe_col(df, 'Injection time') * rpm) / 1200
-    df['Lambda_Avg'] = (safe_col(df, 'Lambda #1 integrator ') + safe_col(df, 'Lambda #2 integrator')) / 2
-    df['VE_Calculated'] = (safe_col(df, 'Air mass') * 100) / (rpm * 0.16 + 1)
-    df['Knock_Peak'] = df[['Knock sensor #1', 'Knock sensor #2']].max(axis=1)
-    
-    # Identificare WOT (Wide Open Throttle)
-    df['WOT'] = (safe_col(df, 'Engine load') > 70) & (rpm > 3000)
-    
+    rpm = safe_col(df, "Motor RPM").replace(0, np.nan)
+
+    df["Inj_Duty"] = (safe_col(df, "Injection time") * rpm) / 1200
+    df["Lambda_Avg"] = (
+        safe_col(df, "Lambda #1 integrator ") +
+        safe_col(df, "Lambda #2 integrator")
+    ) / 2
+
+    df["VE_Calculated"] = (safe_col(df, "Air mass") * 100) / (rpm * 0.16 + 1)
+    df["Knock_Peak"] = df[["Knock sensor #1", "Knock sensor #2"]].max(axis=1)
+
+    df["WOT"] = (safe_col(df, "Engine load") > 70) & (rpm > 3000)
+
     return df
 
-# ===================== ANALYSIS =====================
-def get_diagnostics(df):
-    wot = df[df['WOT']]
+# ======================================================
+# DIAGNOSTIC ENGINE
+# ======================================================
+def get_diagnostics(df: pd.DataFrame):
     reports = []
-    
-    # Fuel
-    duty_max = df['Inj_Duty'].max()
-    lambda_wot = wot['Lambda_Avg'].mean() if not wot.empty else 0
+    wot = df[df["WOT"]]
+
+    # ---- FUEL ----
+    duty_max = df["Inj_Duty"].max()
+    lambda_wot = wot["Lambda_Avg"].mean() if not wot.empty else np.nan
+
     if duty_max > 90:
-        reports.append(("⛽ BENZINĂ", "HARD LIMIT", f"Duty Cycle la {duty_max:.1f}%", "Injectoare prea mici. Upgrade necesar."))
+        reports.append(("⛽ BENZINĂ", "HARD LIMIT",
+                        f"Duty Cycle maxim {duty_max:.1f}%",
+                        "Limită hardware. Injectoare insuficiente."))
     elif lambda_wot > 0.88:
-        reports.append(("⛽ BENZINĂ", "CRITICAL", f"Lambda WOT {lambda_wot:.2f} (Sărac)", "Risc de topire pistoane. Îmbogățește amestecul."))
+        reports.append(("⛽ BENZINĂ", "CRITICAL",
+                        f"Lambda WOT {lambda_wot:.2f} (amestec sărac)",
+                        "Risc sever. Îmbogățește zona high load."))
     else:
-        reports.append(("⛽ BENZINĂ", "OK", "Amestec optim în sarcină.", "Nu sunt necesare corecții."))
+        reports.append(("⛽ BENZINĂ", "OK",
+                        "Amestec corect și injecție în parametri.",
+                        "Strategie fuel stabilă."))
 
-    # Ignition/Knock
-    k_peak = df['Knock_Peak'].max()
+    # ---- IGNITION / KNOCK ----
+    k_peak = df["Knock_Peak"].max()
     if k_peak > 2.2:
-        reports.append(("⚡ APRINDERE", "CRITICAL", f"Knock Peak detectat: {k_peak:.2f}V", "Detonație activă! Scade avansul cu 2-4 grade."))
+        reports.append(("⚡ APRINDERE", "CRITICAL",
+                        f"Knock detectat ({k_peak:.2f}V)",
+                        "Scade avansul cu 2–4° în zonele afectate."))
     else:
-        reports.append(("⚡ APRINDERE", "OK", "Fără detonații periculoase.", "Avansul este sigur."))
+        reports.append(("⚡ APRINDERE", "OK",
+                        "Aprindere stabilă, fără detonații.",
+                        "Poți rafina avansul progresiv."))
 
-    # Thermal
-    oil = df['Oil temp.'].max()
-    if oil > 112:
-        reports.append(("🌡️ TERMIC", "WARNING", f"Ulei la {oil:.1f}°C", "Răcire ineficientă sub sarcină prelungită."))
+    # ---- THERMAL ----
+    oil_max = df["Oil temp."].max()
+    if oil_max > 112:
+        reports.append(("🌡️ TERMIC", "WARNING",
+                        f"Temperatură ulei {oil_max:.1f}°C",
+                        "Îmbunătățește răcirea sau limitează sarcina."))
     else:
-        reports.append(("🌡️ TERMIC", "OK", "Temperaturi stabile.", "Sistem de răcire nominal."))
+        reports.append(("🌡️ TERMIC", "OK",
+                        "Management termic stabil.",
+                        "Sistem de răcire eficient."))
 
     return reports
 
 # ======================================================
-# APP RENDER
+# UI COMPONENTS
+# ======================================================
+def render_status_card(title, level, obs, action):
+    css = {"OK": "ok", "WARNING": "warn", "CRITICAL": "crit", "HARD LIMIT": "crit"}[level]
+    st.markdown(f"""
+    <div class="status-card {css}">
+        <h3>{title} — {level}</h3>
+        <p><b>Observație:</b> {obs}</p>
+        <p><b>Acțiune recomandată:</b> {action}</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+# ======================================================
+# MAIN APP
 # ======================================================
 def app():
-    st.markdown("""<div class="header-box"><h1>LZTuned Architect Ultimate v20.0</h1>
-    <p>Sistem Expert de Diagnostic & Forensics | Lead: <b>Luis Zavoianu</b></p></div>""", unsafe_allow_html=True)
+    st.markdown(f"""
+    <div class="header-box">
+        <h1>{APP_TITLE}</h1>
+        <p>Sistem Expert de Diagnostic & Tuning Forensic<br>
+        <b>Lead Engineer: Luis Zavoianu</b></p>
+    </div>
+    """, unsafe_allow_html=True)
 
     file = st.file_uploader("Încarcă LOG ECU (CSV)", type="csv")
-    if not file: return
+    if not file:
+        return
 
-    # Load & Process
-    df_raw = pd.read_csv(file, sep=';')
+    df_raw = pd.read_csv(file, sep=";")
     df = compute_channels(df_raw)
     all_cols = df.columns.tolist()
 
-    # 1. KPI DASHBOARD
+    # ==================================================
+    # KPI
+    # ==================================================
     st.header("💎 Engine Master KPIs")
     k = st.columns(4)
-    k[0].metric("RPM Max", int(df['Motor RPM'].max()))
+    k[0].metric("RPM Max", int(df["Motor RPM"].max()))
     k[1].metric("Peak Air Mass", f"{df['Air mass'].max():.1f}")
-    k[2].metric("Max Inj Duty", f"{df['Inj_Duty'].max():.1f}%")
+    k[2].metric("Max Injector Duty", f"{df['Inj_Duty'].max():.1f}%")
     k[3].metric("Min Ignition", f"{df['Ignition angle'].min():.1f}°")
 
     st.markdown("---")
 
-    # 2. RAPORT DIAGNOSTIC (Verdicte)
+    # ==================================================
+    # DIAGNOSTIC REPORT
+    # ==================================================
     st.header("🏁 Verdict Tuning & Siguranță")
-    diag_results = get_diagnostics(df)
-    for title, level, obs, action in diag_results:
-        cls = {"OK": "ok", "WARNING": "warn", "CRITICAL": "crit", "HARD LIMIT": "crit"}[level]
-        st.markdown(f"""<div class="status-card {cls}"><h3>{title} — {level}</h3>
-        <p><b>Observație:</b> {obs}</p><p><b>Acțiune:</b> {action}</p></div>""", unsafe_allow_html=True)
+    for r in get_diagnostics(df):
+        render_status_card(*r)
 
     st.markdown("---")
 
-    # 3. SENSOR FORENSICS (Explicații și Grafice Individuale)
+    # ==================================================
+    # SENSOR FORENSICS
+    # ==================================================
     st.header("🔍 Sensor Forensics Explorer")
-    tabs = st.tabs(["🔥 Combustie", "🌬️ Aer & Boost", "🌡️ Management Termic", "🔋 Hardware"])
-    
-    group_map = {
-        0: ['Motor RPM', 'Ignition angle', 'Knock sensor #1', 'Knock sensor #2', 'Lambda_Avg', 'Injection time'],
-        1: ['Air mass', 'Engine load', 'Throttle position', 'VE_Calculated'],
-        2: ['Motor temp.', 'Oil temp.', 'Intake temp.'],
-        3: ['Battery voltage', 'Electric fan speed', 'Gear']
-    }
+    tabs = st.tabs(["🔥 Combustie", "🌬️ Aer & Sarcină", "🌡️ Termic", "🔋 Electric"])
 
-    for i, (tab, keys) in enumerate(zip(tabs, group_map.values())):
+    groups = [
+        ['Motor RPM', 'Ignition angle', 'Knock sensor #1', 'Knock sensor #2', 'Lambda_Avg', 'Injection time'],
+        ['Air mass', 'Engine load', 'Throttle position', 'VE_Calculated'],
+        ['Motor temp.', 'Oil temp.', 'Intake temp.'],
+        ['Battery voltage', 'Electric fan speed', 'Gear']
+    ]
+
+    for tab, sensors in zip(tabs, groups):
         with tab:
-            for c in keys:
-                if c in df.columns:
-                    with st.expander(f"📊 {c} Details"):
+            for s in sensors:
+                if s in df.columns:
+                    with st.expander(f"📊 {s}"):
                         c1, c2 = st.columns([1, 2])
-                        desc = SENSOR_DESCRIPTIONS.get(c, "Senzor specific identificat în telemetrie.")
-                        c1.markdown(f"<div class='sensor-card'><b>Rol:</b><br>{desc}</div>", unsafe_allow_html=True)
-                        c1.write(f"**Max:** {df[c].max()} | **Min:** {df[c].min()}")
-                        fig = px.line(df, x='time', y=c, color_discrete_sequence=['#58a6ff'])
-                        fig.update_layout(height=300, margin=dict(l=0,r=0,t=0,b=0))
+                        c1.markdown(
+                            f"<div class='sensor-card'><b>Rol:</b><br>{SENSOR_DESCRIPTIONS.get(s, 'Senzor ECU')}</div>",
+                            unsafe_allow_html=True
+                        )
+                        c1.write(f"**Min:** {df[s].min()} | **Max:** {df[s].max()}")
+                        fig = px.line(df, x="time", y=s)
+                        fig.update_layout(height=300, margin=dict(l=0, r=0, t=0, b=0))
                         c2.plotly_chart(fig, use_container_width=True)
 
     st.markdown("---")
 
-    # 4. MULTI-CHANNEL & CORRELATION
+    # ==================================================
+    # ADVANCED ANALYSIS
+    # ==================================================
     st.header("📈 Advanced Telemetry Analysis")
-    t_overlay, t_corr = st.tabs(["Multi-Channel Overlay", "Correlation Matrix"])
-    
-    with t_overlay:
-        selected = st.multiselect("Suprapune senzori pentru analiză:", all_cols, default=['Motor RPM', 'Ignition angle', 'Knock_Peak'])
+    t1, t2 = st.tabs(["Multi-Channel Overlay", "Correlation Matrix"])
+
+    with t1:
+        selected = st.multiselect(
+            "Selectează senzori pentru suprapunere:",
+            all_cols,
+            default=["Motor RPM", "Ignition angle", "Knock_Peak"]
+        )
         if selected:
-            fig_multi = make_subplots(rows=len(selected), cols=1, shared_xaxes=True, vertical_spacing=0.02)
-            for j, s in enumerate(selected):
-                fig_multi.add_trace(go.Scatter(x=df['time'], y=df[s], name=s), row=j+1, col=1)
-            fig_multi.update_layout(height=180*len(selected), template="plotly_dark")
-            st.plotly_chart(fig_multi, use_container_width=True)
+            fig = make_subplots(rows=len(selected), cols=1, shared_xaxes=True)
+            for i, s in enumerate(selected):
+                fig.add_trace(go.Scatter(x=df["time"], y=df[s], name=s), i+1, 1)
+            fig.update_layout(height=180 * len(selected), template="plotly_dark")
+            st.plotly_chart(fig, use_container_width=True)
 
-    with t_corr:
+    with t2:
         corr = df.select_dtypes(include=[np.number]).corr()
-        st.plotly_chart(px.imshow(corr, text_auto=".2f", color_continuous_scale='RdBu_r'), use_container_width=True)
+        st.plotly_chart(
+            px.imshow(corr, text_auto=".2f", color_continuous_scale="RdBu_r"),
+            use_container_width=True
+        )
 
-    # 5. DATA TABLE
     st.markdown("---")
-    with st.expander("📄 Full Data Table"):
+    with st.expander("📄 Full Processed Data Table"):
         st.dataframe(df, use_container_width=True)
 
+# ======================================================
+# ENTRY POINT
+# ======================================================
 if __name__ == "__main__":
     app()
