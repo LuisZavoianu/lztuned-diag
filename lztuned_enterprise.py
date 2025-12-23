@@ -230,20 +230,80 @@ def app():
     k[2].metric("MAX INJ DUTY", f"{df['Inj_Duty'].max():.1f} %")
     k[3].metric("MIN IGNITION", f"{df['Ignition angle'].min():.1f} °")
 
-    # VERDICT
+# ==================================================
+    # VERDICT & CRITICAL ALERTS
+    # ==================================================
     st.markdown("<h2 class='section-title'>SYSTEM VERDICT & SAFETY STATUS</h2>", unsafe_allow_html=True)
-    cols = st.columns(len(get_diagnostics(df)))
-    for i, (title, level, obs, action) in enumerate(get_diagnostics(df)):
-        cls = {"OK": "ok", "WARNING": "warn", "CRITICAL": "crit", "HARD LIMIT": "crit"}[level]
-        with cols[i]:
-            st.markdown(f"""
-            <div class="status-card {cls}">
-                <small style='color:#9fb6d9'>{title}</small>
-                <h3 style='margin-bottom:10px'>{level}</h3>
-                <p style='font-size:13px'><b>Obs:</b> {obs}</p>
-                <p style='font-size:13px; color:#58a6ff'><b>Action:</b> {action}</p>
+    
+    # Stil special pentru alertele critice
+    st.markdown("""
+    <style>
+    .alert-container {
+        padding: 25px;
+        border-radius: 15px;
+        margin-bottom: 20px;
+        color: white;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        box-shadow: 0 8px 15px rgba(0,0,0,0.3);
+    }
+    .alert-critical {
+        background: linear-gradient(90deg, #660000 0%, #cc0000 100%);
+        border: 2px solid #ff4d4d;
+    }
+    .alert-warning {
+        background: linear-gradient(90deg, #664400 0%, #cc8800 100%);
+        border: 2px solid #ffcc00;
+    }
+    .alert-ok {
+        background: linear-gradient(90deg, #0d2b16 0%, #1f5c33 100%);
+        border: 2px solid #33cc66;
+    }
+    .alert-header {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 24px;
+        font-weight: bold;
+        text-transform: uppercase;
+        border-bottom: 1px solid rgba(255,255,255,0.2);
+        padding-bottom: 5px;
+    }
+    .alert-body { font-size: 16px; line-height: 1.4; }
+    .alert-action { 
+        background: rgba(255,255,255,0.15); 
+        padding: 10px; 
+        border-radius: 8px; 
+        font-weight: 600; 
+        border: 1px dashed white;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+    diagnostics = get_diagnostics(df)
+    
+    for title, level, obs, action in diagnostics:
+        # Mapare stiluri
+        if level in ["CRITICAL", "HARD LIMIT"]:
+            alert_class = "alert-critical"
+            icon = "🛑"
+        elif level == "WARNING":
+            alert_class = "alert-warning"
+            icon = "⚠️"
+        else:
+            alert_class = "alert-ok"
+            icon = "✅"
+
+        st.markdown(f"""
+        <div class="alert-container {alert_class}">
+            <div class="alert-header">{icon} {title} — {level}</div>
+            <div class="alert-body">
+                <b>OBSERVAȚIE:</b> {obs}
             </div>
-            """, unsafe_allow_html=True)
+            <div class="alert-action">
+                👉 ACȚIUNE: {action}
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
 
     # SENSOR FORENSICS
     st.markdown("<h2 class='section-title'>SENSOR FORENSICS ANALYSIS</h2>", unsafe_allow_html=True)
@@ -300,3 +360,4 @@ def app():
 
 if __name__ == "__main__":
     app()
+
