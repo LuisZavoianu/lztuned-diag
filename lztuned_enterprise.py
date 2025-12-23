@@ -6,7 +6,7 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
 # ======================================================
-# CONFIG & THEME LOCK
+# CONFIG
 # ======================================================
 st.set_page_config(
     page_title="LZTuned Architect Ultimate v20.0",
@@ -14,105 +14,115 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Rescrierea UI pentru contrast maxim și estetică perfectă
+# ======================================================
+# ULTIMATE UX/UI - MOTORSPORT COMMAND CENTER
+# ======================================================
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@500;700&display=swap');
 
-/* Fortare Tema Dark pe tot ecranul */
-.stApp {
-    background: #0b0f14;
+/* =========================
+   GLOBAL BASE
+========================= */
+.main {
+    background: #ffffff;
 }
 
-/* Stil General Text */
 html, body, [class*="css"] {
-    font-family: 'Rajdhani', sans-serif;
-    color: #e0e6ed !important;
+    font-family: 'Inter', sans-serif;
+    color: #0b0f14;
 }
 
-/* Header High-Tech cu animatie finisata */
+/* =========================
+   HEADER – PREMIUM / APPLE STYLE
+========================= */
 .header-box {
-    background: linear-gradient(180deg, rgba(16, 24, 39, 1) 0%, rgba(11, 15, 20, 1) 100%);
-    padding: 50px 20px;
-    border-radius: 0px 0px 30px 30px;
-    border-bottom: 2px solid #4da3ff;
+    background: linear-gradient(
+        180deg,
+        #ffffff 0%,
+        #f5f6f8 100%
+    );
+    padding: 70px 20px 60px;
+    margin: -60px -4rem 60px;
+    border-bottom: 1px solid #e5e7eb;
     text-align: center;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-    margin-bottom: 40px;
 }
 
 .header-box h1 {
     font-family: 'Orbitron', sans-serif;
-    font-size: clamp(28px, 5vw, 50px);
-    font-weight: 900;
-    letter-spacing: 6px;
-    color: #ffffff;
-    text-shadow: 0 0 15px rgba(77, 163, 255, 0.5);
-    margin: 0;
+    font-size: clamp(28px, 5vw, 46px);
+    font-weight: 700;
+    letter-spacing: 3px;
+    margin-bottom: 10px;
+    color: #0b0f14;
 }
 
-/* Sectiuni cu stil industrial */
-.section-title {
-    font-family: 'Orbitron', sans-serif;
-    font-size: 18px;
-    color: #4da3ff;
-    letter-spacing: 2px;
-    border-left: 4px solid #4da3ff;
-    padding-left: 15px;
-    margin: 40px 0 20px 0;
+.header-box p {
+    font-size: 13px;
+    letter-spacing: 3px;
+    color: #6b7280;
     text-transform: uppercase;
 }
 
-/* Carduri Metrici (KPI) - REPARATE PENTRU VIZIBILITATE */
+/* =========================
+   SECTION TITLES
+========================= */
+.section-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 18px;
+    letter-spacing: 2px;
+    margin: 60px 0 30px;
+    padding-left: 14px;
+    border-left: 4px solid #d90429;
+    color: #0b0f14;
+    text-transform: uppercase;
+}
+
+/* =========================
+   KPI METRICS
+========================= */
 div[data-testid="stMetric"] {
-    background: #161b22 !important;
-    border: 1px solid #30363d !important;
-    padding: 20px !important;
-    border-radius: 10px !important;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    padding: 24px !important;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.04);
 }
+
 div[data-testid="stMetricLabel"] {
-    color: #8b949e !important;
     font-family: 'Orbitron', sans-serif !important;
-    font-size: 12px !important;
+    font-size: 11px !important;
+    letter-spacing: 2px;
+    color: #6b7280 !important;
 }
+
 div[data-testid="stMetricValue"] {
-    color: #ffffff !important;
+    font-size: 28px !important;
+    font-weight: 700 !important;
+    color: #0b0f14 !important;
 }
 
-/* Reparare Expandere (Aici era problema in screenshot) */
-.streamlit-expanderHeader {
-    background-color: #161b22 !important;
-    border: 1px solid #30363d !important;
-    border-radius: 8px !important;
-    color: #ffffff !important;
-}
-.streamlit-expanderContent {
-    background-color: #0d1117 !important;
-    border: 1px solid #30363d !important;
-    border-top: none !important;
-}
-
-/* Stil Alerte (Fix culori si contrast) */
+/* =========================
+   ALERTS / VERDICT
+========================= */
 .alert-container {
-    padding: 20px;
-    border-radius: 8px;
-    margin-bottom: 15px;
-    border-left: 6px solid transparent;
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 28px;
+    margin-bottom: 24px;
+    border: 1px solid #e5e7eb;
 }
-.alert-critical { 
-    background: rgba(248, 81, 73, 0.1); 
-    border: 1px solid rgba(248, 81, 73, 0.4);
-    border-left: 6px solid #f85149;
+
+.alert-critical {
+    border-left: 6px solid #dc2626;
 }
-.alert-ok { 
-    background: rgba(63, 185, 80, 0.1); 
-    border: 1px solid rgba(63, 185, 80, 0.4);
-    border-left: 6px solid #3fb950;
+
+.alert-warning {
+    border-left: 6px solid #f59e0b;
 }
-.alert-warning { 
-    background: rgba(210, 153, 34, 0.1); 
-    border: 1px solid rgba(210, 153, 34, 0.4);
-    border-left: 6px solid #d29922;
+
+.alert-ok {
+    border-left: 6px solid #16a34a;
 }
 
 .alert-header {
@@ -122,36 +132,83 @@ div[data-testid="stMetricValue"] {
     margin-bottom: 10px;
 }
 
-/* Tab-uri Custom Contrast */
-.stTabs [data-baseweb="tab-list"] {
-    gap: 10px;
-}
-.stTabs [data-baseweb="tab"] {
-    background-color: #161b22 !important;
-    border: 1px solid #30363d !important;
-    color: #8b949e !important;
-    border-radius: 5px 5px 0 0 !important;
-    padding: 10px 20px !important;
-}
-.stTabs [aria-selected="true"] {
-    background-color: #1f6feb !important;
-    color: white !important;
-    border: 1px solid #1f6feb !important;
+.alert-body {
+    font-size: 15px;
+    color: #374151;
 }
 
-/* Card Senzor Interior */
+.alert-action {
+    margin-top: 14px;
+    padding: 14px;
+    background: #f5f6f8;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* =========================
+   EXPANDERS
+========================= */
+.streamlit-expanderHeader {
+    background: #f5f6f8 !important;
+    border-radius: 12px !important;
+    border: 1px solid #e5e7eb !important;
+    font-weight: 600 !important;
+}
+
+/* =========================
+   SENSOR CARD
+========================= */
 .sensor-card {
-    background: #1c2128;
-    padding: 15px;
-    border-radius: 8px;
-    border: 1px solid #444c56;
-    color: #adbac7;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    padding: 20px;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+/* =========================
+   TABS – CLEAN / PREMIUM
+========================= */
+.stTabs [data-baseweb="tab-list"] {
+    gap: 10px;
+    background: transparent;
+}
+
+.stTabs [data-baseweb="tab"] {
+    background: #f5f6f8 !important;
+    border-radius: 10px;
+    padding: 10px 24px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 12px;
+    letter-spacing: 2px;
+    color: #6b7280 !important;
+}
+
+.stTabs [aria-selected="true"] {
+    background: #ffffff !important;
+    border: 1px solid #e5e7eb !important;
+    color: #0b0f14 !important;
+}
+
+/* =========================
+   FILE UPLOADER
+========================= */
+section[data-testid="stFileUploader"] {
+    background: #f9fafb;
+    border: 2px dashed #d1d5db;
+    border-radius: 16px;
+    padding: 30px;
 }
 </style>
+
 """, unsafe_allow_html=True)
 
 # ======================================================
-# DATA ENGINE (UNCHANGED LOGIC)
+# DATA DICTIONARY (UNCHANGED)
 # ======================================================
 SENSOR_DESCRIPTIONS = {
     "Motor RPM": "Viteza de rotație a arborelui cotit. Esențială pentru axa X în hărțile de tuning.",
@@ -165,8 +222,12 @@ SENSOR_DESCRIPTIONS = {
     "Battery voltage": "Tensiunea sistemului. Trebuie să fie stabilă (>13.5V în mers)."
 }
 
+# ======================================================
+# UTILS & DATA ENGINE (UNCHANGED)
+# ======================================================
 def safe_col(df, name):
-    if name not in df.columns: df[name] = np.nan
+    if name not in df.columns:
+        df[name] = np.nan
     return df[name]
 
 def compute_channels(df: pd.DataFrame) -> pd.DataFrame:
@@ -183,93 +244,135 @@ def get_diagnostics(df):
     reports = []
     duty_max = df['Inj_Duty'].max()
     lambda_wot = wot['Lambda_Avg'].mean() if not wot.empty else 0
+
     if duty_max > 90:
-        reports.append(("FUEL SYSTEM", "HARD LIMIT", f"Duty Cycle at {duty_max:.1f}%", "Injector capacity exceeded."))
+        reports.append(("FUEL SYSTEM", "HARD LIMIT", f"Duty Cycle at {duty_max:.1f}%", "Injector capacity exceeded. Hardware upgrade required."))
     elif lambda_wot > 0.88:
-        reports.append(("FUEL SYSTEM", "CRITICAL", f"WOT Lambda {lambda_wot:.2f}", "Lean mixture! Enrich fueling maps."))
+        reports.append(("FUEL SYSTEM", "CRITICAL", f"WOT Lambda {lambda_wot:.2f}", "Lean mixture under load. Enrich fueling maps immediately."))
     else:
-        reports.append(("FUEL SYSTEM", "OK", "Fuel delivery optimal.", "No correction required."))
+        reports.append(("FUEL SYSTEM", "OK", "Fuel delivery within optimal parameters.", "No correction required."))
+
     k_peak = df['Knock_Peak'].max()
     if k_peak > 2.2:
-        reports.append(("IGNITION SYSTEM", "CRITICAL", f"Knock Peak {k_peak:.2f}V", "Detonation detected! Reduce advance."))
+        reports.append(("IGNITION SYSTEM", "CRITICAL", f"Knock Peak {k_peak:.2f} V", "Active detonation. Reduce ignition advance by 2–4 degrees."))
     else:
-        reports.append(("IGNITION SYSTEM", "OK", "No knock detected.", "Safe ignition strategy."))
+        reports.append(("IGNITION SYSTEM", "OK", "No dangerous knock detected.", "Ignition strategy is stable."))
+
+    oil = df['Oil temp.'].max()
+    if oil > 112:
+        reports.append(("THERMAL MANAGEMENT", "WARNING", f"Oil temperature {oil:.1f} °C", "Cooling efficiency insufficient during sustained load."))
+    else:
+        reports.append(("THERMAL MANAGEMENT", "OK", "Thermal behavior within safe limits.", "Cooling system operating nominally."))
     return reports
 
 # ======================================================
-# MAIN APP INTERFACE
+# APP
 # ======================================================
 def app():
     st.markdown("""
     <div class="header-box">
         <h1>LZTUNED ARCHITECT</h1>
-        <p style="color:#4da3ff; letter-spacing:3px; font-weight:700;">MOTORSPORT DIAGNOSTIC v20.0</p>
+        <p>Motorsport ECU Diagnostic Platform // v20.0</p>
+        <div style="font-size: 10px; opacity: 0.5; margin-top: 15px; letter-spacing: 2px;">
+            ENGINEERED BY LUIS ZAVOIANU // APPLICATION ENGINEER
+        </div>
     </div>
     """, unsafe_allow_html=True)
 
-    _, col_mid, _ = st.columns([1, 2, 1])
-    with col_mid:
-        file = st.file_uploader("📂 LOAD TELEMETRY DATA (CSV)", type="csv")
+    # File Uploader Stilizat implicit
+    _, col2, _ = st.columns([1, 2, 1])
+    with col2:
+        file = st.file_uploader("📂 DRAG & DROP ECU LOG (.CSV)", type="csv")
     
     if not file:
-        st.info("System Ready. Please upload a log file to begin analysis.")
+        st.markdown("<div style='text-align:center; padding:50px; color:#4da3ff; font-family:Orbitron;'>SYSTEM IDLE - WAITING FOR DATA INPUT...</div>", unsafe_allow_html=True)
         return
 
-    df = compute_channels(pd.read_csv(file, sep=';'))
-    
-    # KPI SECTION
-    st.markdown("<div class='section-title'>Engine Performance Telemetry</div>", unsafe_allow_html=True)
-    m1, m2, m3, m4 = st.columns(4)
-    m1.metric("MAX RPM", f"{int(df['Motor RPM'].max())}")
-    m2.metric("AIR MASS", f"{df['Air mass'].max():.1f} kg/h")
-    m3.metric("INJ DUTY", f"{df['Inj_Duty'].max():.1f}%")
-    m4.metric("IGNITION", f"{df['Ignition angle'].min():.1f}°")
+    df_raw = pd.read_csv(file, sep=';')
+    df = compute_channels(df_raw)
+    all_cols = df.columns.tolist()
 
-    # VERDICTS
-    st.markdown("<div class='section-title'>System Verdict & Safety</div>", unsafe_allow_html=True)
-    for title, level, obs, action in get_diagnostics(df):
-        a_class = "alert-critical" if level == "CRITICAL" else "alert-ok" if level == "OK" else "alert-warning"
-        icon = "🛑" if level == "CRITICAL" else "✅" if level == "OK" else "⚠️"
+    # KPI DASHBOARD
+    st.markdown("<h2 class='section-title'>Engine Performance Telemetry</h2>", unsafe_allow_html=True)
+    k = st.columns(4)
+    k[0].metric("MAX RPM", f"{int(df['Motor RPM'].max())}")
+    k[1].metric("AIR MASS", f"{df['Air mass'].max():.1f}")
+    k[2].metric("INJ DUTY", f"{df['Inj_Duty'].max():.1f}%")
+    k[3].metric("IGNITION", f"{df['Ignition angle'].min():.1f}°")
+
+    # VERDICT & CRITICAL ALERTS
+    st.markdown("<h2 class='section-title'>System Verdict & Safety Status</h2>", unsafe_allow_html=True)
+    
+    diagnostics = get_diagnostics(df)
+    for title, level, obs, action in diagnostics:
+        if level in ["CRITICAL", "HARD LIMIT"]:
+            alert_class, icon = "alert-critical", "❌"
+        elif level == "WARNING":
+            alert_class, icon = "alert-warning", "⚠️"
+        else:
+            alert_class, icon = "alert-ok", "✅"
+
         st.markdown(f"""
-        <div class="alert-container {a_class}">
+        <div class="alert-container {alert_class}">
             <div class="alert-header">{icon} {title} // {level}</div>
-            <div style="font-size:14px; opacity:0.8;"><b>OBS:</b> {obs}</div>
-            <div style="font-weight:700; margin-top:5px; color:white;">👉 ACTION: {action}</div>
+            <div class="alert-body"><b>TELEMETRY OBS:</b> {obs}</div>
+            <div class="alert-action">REQUIRED: {action}</div>
         </div>
         """, unsafe_allow_html=True)
 
-    # GRAPHS
-    st.markdown("<div class='section-title'>Sensor Forensics Analysis</div>", unsafe_allow_html=True)
-    tab_list = ["[ COMB ]", "[ FLOW ]", "[ TEMP ]", "[ ELEC ]"]
-    tabs = st.tabs(tab_list)
-    
-    # Mapare senzori pe taburi
-    sensor_groups = [
-        ['Motor RPM', 'Ignition angle', 'Knock sensor #1', 'Lambda_Avg'],
-        ['Air mass', 'Engine load', 'VE_Calculated'],
-        ['Motor temp.', 'Oil temp.'],
-        ['Battery voltage']
-    ]
+    # SENSOR FORENSICS
+    st.markdown("<h2 class='section-title'>Sensor Forensics Analysis</h2>", unsafe_allow_html=True)
+    tabs = st.tabs(["[ COMB ]", "[ FLOW ]", "[ TEMP ]", "[ ELEC ]"])
 
-    for tab, sensors in zip(tabs, sensor_groups):
+    group_map = {
+        0: ['Motor RPM', 'Ignition angle', 'Knock sensor #1', 'Knock sensor #2', 'Lambda_Avg', 'Injection time'],
+        1: ['Air mass', 'Engine load', 'Throttle position', 'VE_Calculated'],
+        2: ['Motor temp.', 'Oil temp.', 'Intake temp.'],
+        3: ['Battery voltage', 'Electric fan speed', 'Gear']
+    }
+
+    for tab, keys in zip(tabs, group_map.values()):
         with tab:
-            for s in sensors:
-                if s in df.columns:
-                    with st.expander(f"📊 DATA CHANNEL: {s.upper()}"):
-                        c1, c2 = st.columns([1, 3])
+            st.write(" ")
+            for c in keys:
+                if c in df.columns:
+                    with st.expander(f"SCAN CHANNEL: {c.upper()}"):
+                        c1, c2 = st.columns([1, 2.5])
                         with c1:
-                            st.markdown(f"<div class='sensor-card'>{SENSOR_DESCRIPTIONS.get(s, 'Telemetry channel')}</div>", unsafe_allow_html=True)
-                            st.write(f"**MIN:** {df[s].min():.2f}")
-                            st.write(f"**MAX:** {df[s].max():.2f}")
+                            st.markdown(f"<div class='sensor-card'><b>CHANNEL INFO:</b><br>{SENSOR_DESCRIPTIONS.get(c, 'Standard telemetry input.')}</div>", unsafe_allow_html=True)
+                            st.markdown(f"<div style='margin-top:20px; font-size:12px;'><b>PEAK RANGE:</b><br>{df[c].min()} — {df[c].max()}</div>", unsafe_allow_html=True)
                         with c2:
-                            fig = px.line(df, x='time', y=s, template="plotly_dark")
-                            fig.update_traces(line_color='#4da3ff', line_width=1.5)
-                            fig.update_layout(height=200, margin=dict(l=0,r=0,t=10,b=10), paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)')
+                            fig = px.line(df, x='time', y=c, template="plotly_dark", color_discrete_sequence=['#4da3ff'])
+                            fig.update_layout(height=250, margin=dict(l=0, r=0, t=10, b=10), 
+                                              paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)',
+                                              xaxis=dict(showgrid=False, zeroline=False), yaxis=dict(showgrid=True, gridcolor='#263041'))
                             st.plotly_chart(fig, use_container_width=True)
 
-    st.markdown("<div class='section-title'>Raw Dataset</div>", unsafe_allow_html=True)
-    with st.expander("VIEW FULL DATA TABLE"):
-        st.dataframe(df.head(100), use_container_width=True)
+    # ADVANCED TELEMETRY
+    st.markdown("<h2 class='section-title'>Advanced Overlay & Correlation</h2>", unsafe_allow_html=True)
+    t1, t2 = st.tabs(["[ OVERLAY ]", "[ MATRIX ]"])
+
+    with t1:
+        selected = st.multiselect("Select Channels:", all_cols, default=['Motor RPM', 'Ignition angle', 'Knock_Peak'])
+        if selected:
+            fig = make_subplots(rows=len(selected), cols=1, shared_xaxes=True, vertical_spacing=0.02)
+            for i, s in enumerate(selected):
+                fig.add_trace(go.Scatter(x=df['time'], y=df[s], name=s, line=dict(color='#4da3ff', width=1.5)), row=i+1, col=1)
+            fig.update_layout(height=180*len(selected), template="plotly_dark", showlegend=True,
+                              paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)',
+                              margin=dict(l=0, r=0, t=20, b=20))
+            st.plotly_chart(fig, use_container_width=True)
+
+    with t2:
+        corr = df.select_dtypes(include=[np.number]).corr()
+        fig_corr = px.imshow(corr, text_auto=".2f", color_continuous_scale="RdBu_r", aspect="auto")
+        fig_corr.update_layout(height=600, template="plotly_dark", paper_bgcolor='rgba(0,0,0,0)')
+        st.plotly_chart(fig_corr, use_container_width=True)
+
+    # DATA TABLE
+    st.markdown("<h2 class='section-title'>Full Telemetry Archive</h2>", unsafe_allow_html=True)
+    with st.expander("ACCESS RAW DATASET"):
+        st.dataframe(df, use_container_width=True)
 
 if __name__ == "__main__":
     app()
