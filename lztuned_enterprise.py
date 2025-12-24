@@ -1386,9 +1386,8 @@ if duty.get('severity') == 'CRITICAL':
                     'impact': 'HIGH',
                     'consequence': 'Pierdere control amestec la turații mari, risc de amestec sărac'
                 })
-
-        self.risk_score = min(100, self.risk_score)
-        return self.risk_score, self.risk_factors
+self.risk_score = min(100, self.risk_score)
+return self.risk_score, self.risk_factors
 
 # ======================================================
 # UI COMPONENTS: RENDERERS
@@ -1648,4 +1647,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
