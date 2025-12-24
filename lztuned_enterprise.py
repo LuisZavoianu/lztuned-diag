@@ -1326,19 +1326,18 @@ def render_fuel_analysis(fuel_results):
         color = get_severity_color(lamb.get('severity', 'SAFE'))
         
 with col1:
-    st.markdown(f"""\
+    st.markdown(f"""
 <div class="expert-card" style="border-top: 5px solid {color};">
     <div style="color:{color}; font-weight:900; font-size:13px; font-family:Orbitron;">{lamb['status']}</div>
     <div style="font-size:11px; color:#6c757d;">LAMBDA (AFR) WOT</div>
     <div style="font-size:38px; font-weight:700; margin:12px 0;">{mean_wot:.3f}</div>
     <div style="font-size:13px; line-height:1.5;">
-        Min: {lamb['min_wot']:.3f} | StdDev: {lamb['std_wot']:.3f}<br>
+        Min: {lamb.get('min_wot',0):.3f} | StdDev: {lamb.get('std_wot',0):.3f}<br>
         <span class='confidence-badge' style='background:#e7f5ff;color:#1971c2;margin-top:8px;'>
-            CONFIDENCE: {lamb['confidence']}%
+            CONFIDENCE: {lamb.get('confidence',0)}%
         </span>
     </div>
 </div>
-
 """, unsafe_allow_html=True)
 
             """, unsafe_allow_html=True)
@@ -1750,6 +1749,7 @@ def app():
 
 if __name__ == "__main__":
     app()
+
 
 
 
