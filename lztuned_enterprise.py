@@ -336,39 +336,6 @@ class DrivetrainAnalyzer:
         return ratio
 
 # ======================================================
-# MODULE 5: PDF ARCHITECT - ENTERPRISE REPORTING
-# ======================================================
-
-class PDFReport(FPDF):
-    """Generator de rapoarte PDF formatate pentru clienți Enterprise"""
-    
-    def header(self):
-        self.set_fill_color(11, 15, 20)
-        self.rect(0, 0, 210, 35, 'F')
-        self.set_font('Arial', 'B', 22)
-        self.set_text_color(255, 255, 255)
-        self.cell(0, 15, 'LZTUNED ARCHITECT', 0, 1, 'C')
-        self.set_font('Arial', 'I', 10)
-        self.cell(0, 5, 'OFFICIAL PERFORMANCE & DIAGNOSTIC REPORT', 0, 1, 'C')
-        self.ln(15)
-
-    def chapter_title(self, label):
-        self.set_font('Arial', 'B', 14)
-        self.set_fill_color(217, 4, 4)
-        self.set_text_color(255, 255, 255)
-        self.cell(0, 10, f"  {label}", 0, 1, 'L', 1)
-        self.ln(4)
-
-    def add_metric_row(self, name, value, status):
-        self.set_font('Arial', '', 11)
-        self.set_text_color(0, 0, 0)
-        self.cell(80, 8, f"{name}:", 1)
-        self.cell(60, 8, f"{value}", 1)
-        color = (22, 163, 74) if status == "PASS" else (220, 38, 38)
-        self.set_text_color(*color)
-        self.cell(0, 8, f" {status}", 1, 1)
-
-# ======================================================
 # MODULE 6: ADVANCED EVENT DETECTOR (SCENARIOS)
 # ======================================================
 
@@ -1531,5 +1498,6 @@ if __name__ == "__main__":
 # ======================================================
 # END OF LZTUNED ARCHITECT ULTIMATE V22.0
 # ======================================================
+
 
 
