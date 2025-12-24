@@ -1380,18 +1380,5 @@ def render_predictive_risk(risk_data):
     else:
         color = "#10b981"
     
-    fig = go.Figure(go.Indicator(
-        mode="gauge+number",
-        value=risk_score,
-        domain={'x': [0, 1], 'y': [0, 1]},
-        title={'text': f"RISK LEVEL: {risk_level}", 'font': {'size': 24, 'family': 'Orbitron'}},
-        gauge={
-            'axis': {'range': [0, 100]},
-            'bar': {'color': color},
-            'steps': [
-                {'range': [0, 20], 'color': "#e7f5ff"},
-                {'range': [20, 40], 'color': "#fff9db"},
-                {'range': [40, 70], 'color': "#ffe8cc"},
-                {'range': [70, 100], 'color': "#ffe0e0"}
-            ],
+   
 
