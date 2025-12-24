@@ -4,319 +4,376 @@ import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
-from scipy import stats, signal
-from fpdf import FPDF
-import base64
-import io
 
 # ======================================================
-# CONFIG & ARCHITECT THEME (ULTIMATE UX)
+# CONFIG
 # ======================================================
 st.set_page_config(
-    page_title="LZTuned Architect Ultimate v22.0 | Enterprise",
+    page_title="LZTuned Architect Ultimate v20.0",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="collapsed"
 )
 
+# ======================================================
+# ULTIMATE UX/UI - MOTORSPORT COMMAND CENTER
+# ======================================================
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&display=swap');
-.main { background: #ffffff; }
-.header-box {
-    background: linear-gradient(180deg, #0b0f14 0%, #1c1f26 100%);
-    padding: 60px 40px;
-    margin: -60px -4rem 40px;
-    border-bottom: 4px solid #d90429;
-    color: white;
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@500;700&display=swap');
+
+/* =========================
+   GLOBAL BASE
+========================= */
+.main {
+    background: #ffffff;
 }
-.header-box h1 { font-family: 'Orbitron', sans-serif; font-size: 48px; margin: 0; }
-.section-title { font-family: 'Orbitron', sans-serif; border-left: 5px solid #d90429; padding-left: 15px; margin-top: 30px; text-transform: uppercase; }
-.alert-container { border-radius: 12px; padding: 20px; margin-bottom: 20px; border: 1px solid #e5e7eb; }
-.alert-critical { background: #fff5f5; border-left: 8px solid #dc2626; }
-.alert-ok { background: #f6fff9; border-left: 8px solid #16a34a; }
+
+html, body, [class*="css"] {
+    font-family: 'Inter', sans-serif;
+    color: #0b0f14;
+}
+
+/* =========================
+   HEADER – PREMIUM / APPLE STYLE
+========================= */
+.header-box {
+    background: linear-gradient(
+        180deg,
+        #ffffff 0%,
+        #f5f6f8 100%
+    );
+    padding: 70px 20px 60px;
+    margin: -60px -4rem 60px;
+    border-bottom: 1px solid #e5e7eb;
+    text-align: center;
+}
+
+.header-box h1 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(28px, 5vw, 46px);
+    font-weight: 700;
+    letter-spacing: 3px;
+    margin-bottom: 10px;
+    color: #0b0f14;
+}
+
+.header-box p {
+    font-size: 13px;
+    letter-spacing: 3px;
+    color: #6b7280;
+    text-transform: uppercase;
+}
+
+/* =========================
+   SECTION TITLES
+========================= */
+.section-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 18px;
+    letter-spacing: 2px;
+    margin: 60px 0 30px;
+    padding-left: 14px;
+    border-left: 4px solid #d90429;
+    color: #0b0f14;
+    text-transform: uppercase;
+}
+
+/* =========================
+   KPI METRICS
+========================= */
+div[data-testid="stMetric"] {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    padding: 24px !important;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.04);
+}
+
+div[data-testid="stMetricLabel"] {
+    font-family: 'Orbitron', sans-serif !important;
+    font-size: 11px !important;
+    letter-spacing: 2px;
+    color: #6b7280 !important;
+}
+
+div[data-testid="stMetricValue"] {
+    font-size: 28px !important;
+    font-weight: 700 !important;
+    color: #0b0f14 !important;
+}
+
+/* =========================
+   ALERTS / VERDICT
+========================= */
+.alert-container {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 28px;
+    margin-bottom: 24px;
+    border: 1px solid #e5e7eb;
+}
+
+.alert-critical {
+    border-left: 6px solid #dc2626;
+}
+
+.alert-warning {
+    border-left: 6px solid #f59e0b;
+}
+
+.alert-ok {
+    border-left: 6px solid #16a34a;
+}
+
+.alert-header {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.alert-body {
+    font-size: 15px;
+    color: #374151;
+}
+
+.alert-action {
+    margin-top: 14px;
+    padding: 14px;
+    background: #f5f6f8;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* =========================
+   EXPANDERS
+========================= */
+.streamlit-expanderHeader {
+    background: #f5f6f8 !important;
+    border-radius: 12px !important;
+    border: 1px solid #e5e7eb !important;
+    font-weight: 600 !important;
+}
+
+/* =========================
+   SENSOR CARD
+========================= */
+.sensor-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    padding: 20px;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+/* =========================
+   TABS – CLEAN / PREMIUM
+========================= */
+.stTabs [data-baseweb="tab-list"] {
+    gap: 10px;
+    background: transparent;
+}
+
+.stTabs [data-baseweb="tab"] {
+    background: #f5f6f8 !important;
+    border-radius: 10px;
+    padding: 10px 24px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 12px;
+    letter-spacing: 2px;
+    color: #6b7280 !important;
+}
+
+.stTabs [aria-selected="true"] {
+    background: #ffffff !important;
+    border: 1px solid #e5e7eb !important;
+    color: #0b0f14 !important;
+}
+
+/* =========================
+   FILE UPLOADER
+========================= */
+section[data-testid="stFileUploader"] {
+    background: #f9fafb;
+    border: 2px dashed #d1d5db;
+    border-radius: 16px;
+    padding: 30px;
+}
 </style>
+
 """, unsafe_allow_html=True)
 
 # ======================================================
-# DATA ENGINE & MAPPING
+# DATA DICTIONARY (UNCHANGED)
 # ======================================================
-CHANNELS_MAP = {
-    'rpm': ['Motor RPM', 'Engine RPM', 'RPM', 'nMot'],
-    'load': ['Engine load', 'MAP', 'Boost', 'pManifold'],
-    'tps': ['Throttle pos.', 'Throttle position', 'TPS', 'AccPedal'],
-    'lambda1': ['Lambda #1 integrator', 'Lambda #1 integrator ', 'Lambda1'],
-    'ign': ['Ignition angle', 'Advance', 'Ign_Advance'],
-    'iat': ['Intake temp.', 'IAT', 'Air_Temp'],
-    'knock1': ['Knock sensor #1', 'Knock1'],
-    'maf': ['Air mass', 'MAF', 'Mass_Air_Flow'],
-    'inj': ['Injection time', 'Inj_Time', 'tInj']
+SENSOR_DESCRIPTIONS = {
+    "Motor RPM": "Viteza de rotație a arborelui cotit. Esențială pentru axa X în hărțile de tuning.",
+    "Engine load": "Sarcina motorului. Indică volumul de aer raportat la capacitatea cilindrică.",
+    "Air mass": "Cantitatea de aer absorbită. Determinantă pentru calculul amestecului (MAF).",
+    "Ignition angle": "Momentul scânteii. Valorile prea mici indică retard cauzat de detonație.",
+    "Injection time": "Durata deschiderii injectoarelor (ms). Peste 20ms indică saturație.",
+    "Knock sensor #1": "Senzor piezo care detectează vibrații de detonație în bloc.",
+    "Motor temp.": "Temperatura antigelului. Optim: 85-95°C.",
+    "Oil temp.": "Temperatura uleiului. Peste 115°C necesită răcire suplimentară.",
+    "Battery voltage": "Tensiunea sistemului. Trebuie să fie stabilă (>13.5V în mers)."
 }
 
-def auto_map(df):
-    mapped = {}
-    for k, variants in CHANNELS_MAP.items():
-        for v in variants:
-            if v in df.columns:
-                mapped[k] = v
-                break
-    return mapped
+# ======================================================
+# UTILS & DATA ENGINE (UNCHANGED)
+# ======================================================
+def safe_col(df, name):
+    if name not in df.columns:
+        df[name] = np.nan
+    return df[name]
 
-def clean_data(df, mapped):
-    # Fix Boost (mBar to Bar)
-    if 'load' in mapped:
-        if df[mapped['load']].max() > 500:
-            df[mapped['load']] /= 1000.0
+def compute_channels(df: pd.DataFrame) -> pd.DataFrame:
+    rpm = safe_col(df, 'Motor RPM').replace(0, np.nan)
+    df['Inj_Duty'] = (safe_col(df, 'Injection time') * rpm) / 1200
+    df['Lambda_Avg'] = (safe_col(df, 'Lambda #1 integrator ') + safe_col(df, 'Lambda #2 integrator')) / 2
+    df['VE_Calculated'] = (safe_col(df, 'Air mass') * 100) / (rpm * 0.16 + 1)
+    df['Knock_Peak'] = df[['Knock sensor #1', 'Knock sensor #2']].max(axis=1)
+    df['WOT'] = (safe_col(df, 'Engine load') > 70) & (rpm > 3000)
+    return df
+
+def get_diagnostics(df):
+    wot = df[df['WOT']]
+    reports = []
+    duty_max = df['Inj_Duty'].max()
+    lambda_wot = wot['Lambda_Avg'].mean() if not wot.empty else 0
+
+    if duty_max > 90:
+        reports.append(("FUEL SYSTEM", "HARD LIMIT", f"Duty Cycle at {duty_max:.1f}%", "Injector capacity exceeded. Hardware upgrade required."))
+    elif lambda_wot > 0.88:
+        reports.append(("FUEL SYSTEM", "CRITICAL", f"WOT Lambda {lambda_wot:.2f}", "Lean mixture under load. Enrich fueling maps immediately."))
+    else:
+        reports.append(("FUEL SYSTEM", "OK", "Fuel delivery within optimal parameters.", "No correction required."))
+
+    k_peak = df['Knock_Peak'].max()
+    if k_peak > 2.2:
+        reports.append(("IGNITION SYSTEM", "CRITICAL", f"Knock Peak {k_peak:.2f} V", "Active detonation. Reduce ignition advance by 2–4 degrees."))
+    else:
+        reports.append(("IGNITION SYSTEM", "OK", "No dangerous knock detected.", "Ignition strategy is stable."))
+
+    oil = df['Oil temp.'].max()
+    if oil > 112:
+        reports.append(("THERMAL MANAGEMENT", "WARNING", f"Oil temperature {oil:.1f} °C", "Cooling efficiency insufficient during sustained load."))
+    else:
+        reports.append(("THERMAL MANAGEMENT", "OK", "Thermal behavior within safe limits.", "Cooling system operating nominally."))
+    return reports
+
+# ======================================================
+# APP
+# ======================================================
+def app():
+    st.markdown("""
+    <div class="header-box">
+        <h1>LZTUNED ARCHITECT</h1>
+        <p>Motorsport ECU Diagnostic Platform // v20.0</p>
+        <div style="font-size: 10px; opacity: 0.5; margin-top: 15px; letter-spacing: 2px;">
+            ENGINEERED BY LUIS ZAVOIANU // APPLICATION ENGINEER
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # File Uploader Stilizat implicit
+    _, col2, _ = st.columns([1, 2, 1])
+    with col2:
+        file = st.file_uploader("📂 DRAG & DROP ECU LOG (.CSV)", type="csv")
     
-    # Fill missing essentials with 0 to prevent crashes
-    for k in ['rpm', 'tps', 'load', 'lambda1', 'knock1', 'iat', 'ign', 'maf']:
-        if k not in mapped:
-            df[f"DUMMY_{k}"] = 0.0
-            mapped[k] = f"DUMMY_{k}"
-    return df, mapped
-
-# ======================================================
-# ADVANCED ANALYTICS MODULES
-# ======================================================
-class EngineScience:
-    @staticmethod
-    def calculate_ve(maf, rpm, map_bar, iat, displacement=2.0):
-        if rpm.max() < 500: return 0
-        temp_k = iat + 273.15
-        rho_manifold = (map_bar * 100000) / (287.05 * temp_k)
-        theoretical = (displacement / 1000) * (rpm / 120) * rho_manifold * 3600
-        return (maf / theoretical.max()) * 100 if theoretical.max() > 0 else 0
-
-# ======================================================
-# APPLICATION INTERFACE
-# ======================================================
-def main():
-    st.markdown('<div class="header-box"><h1>LZTUNED ARCHITECT <span style="color:#d90429">PRO</span></h1><p>ENTERPRISE ECU CALIBRATION SUITE</p></div>', unsafe_allow_html=True)
-    
-    file = st.file_uploader("📂 INCARCA LOG-UL MOTORSPORT (.CSV)", type="csv")
     if not file:
-        st.info("Sistem în așteptare. Încarcă un fișier CSV pentru analiză.")
+        st.markdown("<div style='text-align:center; padding:50px; color:#4da3ff; font-family:Orbitron;'>SYSTEM IDLE - WAITING FOR DATA INPUT...</div>", unsafe_allow_html=True)
         return
 
     df_raw = pd.read_csv(file, sep=';')
-    mapped = auto_map(df_raw)
-    df, mapped = clean_data(df_raw, mapped)
+    df = compute_channels(df_raw)
+    all_cols = df.columns.tolist()
 
-    # --- TELEMETRY DASHBOARD ---
-    st.markdown("<h2 class='section-title'>Live Engine Telemetry</h2>", unsafe_allow_html=True)
-    k1, k2, k3, k4 = st.columns(4)
-    k1.metric("PEAK RPM", int(df[mapped['rpm']].max()))
-    k2.metric("MAX BOOST", f"{df[mapped['load']].max():.2f} bar")
-    k3.metric("IAT MAX", f"{df[mapped['iat']].max()}°C")
-    k4.metric("KNOCK PEAK", f"{df[mapped['knock1']].max():.2f}V")
+    # KPI DASHBOARD
+    st.markdown("<h2 class='section-title'>Engine Performance Telemetry</h2>", unsafe_allow_html=True)
+    k = st.columns(4)
+    k[0].metric("MAX RPM", f"{int(df['Motor RPM'].max())}")
+    k[1].metric("AIR MASS", f"{df['Air mass'].max():.1f}")
+    k[2].metric("INJ DUTY", f"{df['Inj_Duty'].max():.1f}%")
+    k[3].metric("IGNITION", f"{df['Ignition angle'].min():.1f}°")
 
-    t_diag, t_advanced, t_report = st.tabs(["🔍 DIAGNOSTIC", "🧪 ADVANCED LAB", "📄 REPORT GEN"])
-
-    with t_diag:
-        st.subheader("Analiză Automată Stare Motor")
-        if df[mapped['knock1']].max() > 1.8:
-            st.markdown('<div class="alert-container alert-critical"><b>CRITICAL:</b> Detonație detectată! Redu avansul cu 2-3 grade.</div>', unsafe_allow_html=True)
+    # VERDICT & CRITICAL ALERTS
+    st.markdown("<h2 class='section-title'>System Verdict & Safety Status</h2>", unsafe_allow_html=True)
+    
+    diagnostics = get_diagnostics(df)
+    for title, level, obs, action in diagnostics:
+        if level in ["CRITICAL", "HARD LIMIT"]:
+            alert_class, icon = "alert-critical", "❌"
+        elif level == "WARNING":
+            alert_class, icon = "alert-warning", "⚠️"
         else:
-            st.markdown('<div class="alert-container alert-ok"><b>OPTIM:</b> Parametrii de aprindere sunt stabili.</div>', unsafe_allow_html=True)
-        
-        fig = px.line(df, x=df.index, y=[mapped['rpm'], mapped['tps']], title="Corelație RPM vs TPS")
-        st.plotly_chart(fig, use_container_width=True)
+            alert_class, icon = "alert-ok", "✅"
 
-    with t_advanced:
-        st.subheader("Science & Physics Lab")
-        ve = EngineScience.calculate_ve(df[mapped['maf']].max(), df[mapped['rpm']], df[mapped['load']].max(), df[mapped['iat']].max())
-        st.metric("Efficiency (VE)", f"{ve:.1f}%")
-        
-        # Driver aggression
-        diff = np.abs(np.diff(df[mapped['tps']]))
-        score = np.mean(diff) * 10
-        st.metric("Driver Aggression Index", f"{score:.2f}")
+        st.markdown(f"""
+        <div class="alert-container {alert_class}">
+            <div class="alert-header">{icon} {title} // {level}</div>
+            <div class="alert-body"><b>TELEMETRY OBS:</b> {obs}</div>
+            <div class="alert-action">REQUIRED: {action}</div>
+        </div>
+        """, unsafe_allow_html=True)
 
-    with t_report:
-        if st.button("🏗️ GENEREAZĂ RAPORT PDF"):
-            pdf = FPDF()
-            pdf.add_page()
-            pdf.set_font("Arial", "B", 16)
-            pdf.cell(0, 10, "LZTUNED ENTERPRISE DIAGNOSTIC", 0, 1, "C")
-            pdf.set_font("Arial", "", 12)
-            pdf.ln(10)
-            pdf.cell(0, 10, f"Peak RPM: {int(df[mapped['rpm']].max())}", 0, 1)
-            pdf.cell(0, 10, f"Max Boost: {df[mapped['load']].max():.2f} bar", 0, 1)
-            
-            pdf_out = pdf.output(dest='S').encode('latin-1')
-            b64 = base64.b64encode(pdf_out).decode()
-            href = f'<a href="data:application/pdf;base64,{b64}" download="Raport_LZTuned.pdf" style="padding:15px; background:#d90429; color:white; border-radius:8px; text-decoration:none;">📥 DESCARCĂ RAPORTUL</a>'
-            st.markdown(href, unsafe_allow_html=True)
+    # SENSOR FORENSICS
+    st.markdown("<h2 class='section-title'>Sensor Forensics Analysis</h2>", unsafe_allow_html=True)
+    tabs = st.tabs(["[ COMB ]", "[ FLOW ]", "[ TEMP ]", "[ ELEC ]"])
 
-# ======================================================
-# MOTORSPORT ENGINEERING MODULES (FUNCTII NOI)
-# ======================================================
-
-def calculate_estimated_power(df, mapped, weight_kg=1500):
-    """Calculează puterea estimativă la roată bazată pe accelerare (VSS Delta)"""
-    if 'vss' in mapped and 'time' in mapped:
-        df['speed_ms'] = df[mapped['vss']] / 3.6
-        df['accel'] = df['speed_ms'].diff() / df['time'].diff()
-        # F = m * a
-        df['force'] = weight_kg * df['accel']
-        # P = F * v
-        df['power_kw'] = (df['force'] * df['speed_ms']) / 1000
-        df['hp'] = df['power_kw'] * 1.34102
-        return df['hp'].max()
-    return 0
-
-def analyze_lambda_safety(df, mapped):
-    """Analizează diferența dintre bănci (Lambda Bank Deviation)"""
-    if 'lambda1' in mapped and 'lambda2' in mapped:
-        deviation = np.abs(df[mapped['lambda1']] - df[mapped['lambda2']]).mean()
-        return deviation
-    return 0
-
-def detect_misfires(df, mapped):
-    """Detectează potențiale misfire-uri prin analiza fluctuațiilor RPM la ralanti"""
-    if 'rpm' in mapped:
-        rpm_smooth = df[mapped['rpm']].rolling(window=5).mean()
-        rpm_delta = np.abs(df[mapped['rpm']] - rpm_smooth)
-        return rpm_delta.max()
-    return 0
-
-def get_performance_summary(df, mapped):
-    """Generează un obiect de sumar pentru raportul final"""
-    summary = {
-        "max_boost": df[mapped['load']].max(),
-        "max_rpm": df[mapped['rpm']].max(),
-        "avg_iat": df[mapped['iat']].mean(),
-        "peak_knock": df[mapped['knock1']].max(),
-        "hp_est": calculate_estimated_power(df, mapped)
+    group_map = {
+        0: ['Motor RPM', 'Ignition angle', 'Knock sensor #1', 'Knock sensor #2', 'Lambda_Avg', 'Injection time'],
+        1: ['Air mass', 'Engine load', 'Throttle position', 'VE_Calculated'],
+        2: ['Motor temp.', 'Oil temp.', 'Intake temp.'],
+        3: ['Battery voltage', 'Electric fan speed', 'Gear']
     }
-    return summary
 
-# ======================================================
-# INTEGRARE IN INTERFATA (In interiorul functiei main)
-# ======================================================
-# Adaugă acest bloc în interiorul funcției main(), sub tab-uri sau într-un tab nou:
+    for tab, keys in zip(tabs, group_map.values()):
+        with tab:
+            st.write(" ")
+            for c in keys:
+                if c in df.columns:
+                    with st.expander(f"SCAN CHANNEL: {c.upper()}"):
+                        c1, c2 = st.columns([1, 2.5])
+                        with c1:
+                            st.markdown(f"<div class='sensor-card'><b>CHANNEL INFO:</b><br>{SENSOR_DESCRIPTIONS.get(c, 'Standard telemetry input.')}</div>", unsafe_allow_html=True)
+                            st.markdown(f"<div style='margin-top:20px; font-size:12px;'><b>PEAK RANGE:</b><br>{df[c].min()} — {df[c].max()}</div>", unsafe_allow_html=True)
+                        with c2:
+                            fig = px.line(df, x='time', y=c, template="plotly_dark", color_discrete_sequence=['#4da3ff'])
+                            fig.update_layout(height=250, margin=dict(l=0, r=0, t=10, b=10), 
+                                              paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)',
+                                              xaxis=dict(showgrid=False, zeroline=False), yaxis=dict(showgrid=True, gridcolor='#263041'))
+                            st.plotly_chart(fig, use_container_width=True)
 
-def display_advanced_analytics(df, mapped):
-    st.markdown("<h2 class='section-title'>🧬 Deep Data Forensics</h2>", unsafe_allow_html=True)
-    col1, col2, col3 = st.columns(3)
-    
-    with col1:
-        hp = calculate_estimated_power(df, mapped)
-        st.metric("EST. PEAK HP", f"{hp:.1f} HP", help="Calculat pe baza accelerației masei vehiculului")
-        
-    with col2:
-        dev = analyze_lambda_safety(df, mapped)
-        status = "SAFE" if dev < 0.05 else "CHECK INJECTORS"
-        st.metric("BANK DEVIATION", f"{dev:.4f} λ", delta=status, delta_color="inverse")
-        
-    with col3:
-        misfire_index = detect_misfires(df, mapped)
-        st.metric("STABILITY INDEX", f"{misfire_index:.1f}", help="Fluctuația RPM. Valori mari indică aprindere instabilă.")
+    # ADVANCED TELEMETRY
+    st.markdown("<h2 class='section-title'>Advanced Overlay & Correlation</h2>", unsafe_allow_html=True)
+    t1, t2 = st.tabs(["[ OVERLAY ]", "[ MATRIX ]"])
 
-    # Grafic suprapus pentru presiune vs aprindere
-    fig_adv = make_subplots(specs=[[{"secondary_y": True}]])
-    fig_adv.add_trace(go.Scatter(x=df.index, y=df[mapped['load']], name="Boost (Bar)", line=dict(color="red")), secondary_y=False)
-    fig_adv.add_trace(go.Scatter(x=df.index, y=df[mapped['ign']], name="Ignition Angle", line=dict(color="blue", dash="dash")), secondary_y=True)
-    fig_adv.update_layout(title="Relationship: Load vs Ignition Timing")
-    st.plotly_chart(fig_adv, use_container_width=True)
+    with t1:
+        selected = st.multiselect("Select Channels:", all_cols, default=['Motor RPM', 'Ignition angle', 'Knock_Peak'])
+        if selected:
+            fig = make_subplots(rows=len(selected), cols=1, shared_xaxes=True, vertical_spacing=0.02)
+            for i, s in enumerate(selected):
+                fig.add_trace(go.Scatter(x=df['time'], y=df[s], name=s, line=dict(color='#4da3ff', width=1.5)), row=i+1, col=1)
+            fig.update_layout(height=180*len(selected), template="plotly_dark", showlegend=True,
+                              paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)',
+                              margin=dict(l=0, r=0, t=20, b=20))
+            st.plotly_chart(fig, use_container_width=True)
 
+    with t2:
+        corr = df.select_dtypes(include=[np.number]).corr()
+        fig_corr = px.imshow(corr, text_auto=".2f", color_continuous_scale="RdBu_r", aspect="auto")
+        fig_corr.update_layout(height=600, template="plotly_dark", paper_bgcolor='rgba(0,0,0,0)')
+        st.plotly_chart(fig_corr, use_container_width=True)
 
-
-# ======================================================
-# FINAL SCRIPT EXECUTION
-# ======================================================
-
-# ======================================================
-# MODULE TEHNICE AVANSATE (ENTERPRISE GRADE)
-# ======================================================
-
-class ThermalDynamics:
-    @staticmethod
-    def analyze_cooling_efficiency(df, mapped):
-        """Analizează cât de repede scade temperatura după un Pull (Heat Soak recovery)"""
-        if 'ect' in mapped and 'iat' in mapped:
-            ect_start = df[mapped['ect']].iloc[0]
-            ect_max = df[mapped['ect']].max()
-            recovery_rate = (ect_max - df[mapped['ect']].iloc[-1])
-            return {
-                "ect_delta": ect_max - ect_start,
-                "heat_soak_risk": "HIGH" if df[mapped['iat']].max() > 60 else "NORMAL",
-                "recovery": recovery_rate
-            }
-        return None
-
-class FuelSystemForensics:
-    @staticmethod
-    def calculate_injector_headroom(df, mapped):
-        """Calculează limita fizică a injectoarelor (Duty Cycle vs RPM)"""
-        if 'inj' in mapped and 'rpm' in mapped:
-            # Duty Cycle (%) = (Injection Time * RPM) / 1200
-            dc = (df[mapped['inj']] * df[mapped['rpm']]) / 1200
-            max_dc = dc.max()
-            status = "DANGER" if max_dc > 90 else "SAFE"
-            return max_dc, status
-        return 0, "N/A"
-
-class IgnitionStability:
-    @staticmethod
-    def spark_jitter_analysis(df, mapped):
-        """Analizează instabilitatea avansului (Jitter) care indică probleme de senzori"""
-        if 'ign' in mapped:
-            jitter = df[mapped['ign']].diff().abs().mean()
-            return jitter
-        return 0
-
-class GearRatioCalculator:
-    @staticmethod
-    def detect_gear_slips(df, mapped):
-        """Detectează dacă patinează ambreiajul (Raport RPM / Viteza)"""
-        if 'rpm' in mapped and 'vss' in mapped:
-            # Evităm diviziunea la zero
-            valid = df[df[mapped['vss']] > 10]
-            if not valid.empty:
-                ratio = valid[mapped['rpm']] / valid[mapped['vss']]
-                ratio_std = ratio.std()
-                # O deviație standard mare în treaptă indică patinare
-                return "SLIP DETECTED" if ratio_std > 5 else "STABLE"
-        return "N/A"
-
-# ======================================================
-# INTEGRARE ÎN INTERFAȚA (Tab-ul LAB AVANSAT)
-# ======================================================
-
-def display_forensic_modules(df, mapped):
-    st.markdown("<h2 class='section-title'>🛡️ Hardware Safety Forensics</h2>", unsafe_allow_html=True)
-    
-    m1, m2, m3, m4 = st.columns(4)
-    
-    with m1:
-        dc, status = FuelSystemForensics.calculate_injector_headroom(df, mapped)
-        color = "normal" if status == "SAFE" else "inverse"
-        st.metric("INJECTOR DUTY", f"{dc:.1f}%", delta=status, delta_color=color)
-        st.caption("Peste 85% indică injectoare prea mici.")
-
-    with m2:
-        thermal = ThermalDynamics.analyze_cooling_efficiency(df, mapped)
-        if thermal:
-            st.metric("HEAT SOAK RISK", thermal['heat_soak_risk'], delta=f"{thermal['ect_delta']:.1f}°C")
-            st.caption("Variația temperaturii apei în log.")
-
-    with m3:
-        jitter = IgnitionStability.spark_jitter_analysis(df, mapped)
-        st.metric("IGN JITTER", f"{jitter:.3f}°", help="Instabilitatea scânteii. Valori mari = senzori de vibrație defecti.")
-
-    with m4:
-        slip = GearRatioCalculator.detect_gear_slips(df, mapped)
-        st.metric("CLUTCH STATUS", slip)
-        st.caption("Analiza patinării ambreiajului.")
-
-    # Vizualizare grafică pentru Injector Duty Cycle
-    if 'inj' in mapped:
-        df['dc_calc'] = (df[mapped['inj']] * df[mapped['rpm']]) / 1200
-        fig_dc = px.area(df, x=df.index, y='dc_calc', title="Injector Duty Cycle Trend (%)", color_discrete_sequence=['#ff4b4b'])
-        st.plotly_chart(fig_dc, use_container_width=True)
-
+    # DATA TABLE
+    st.markdown("<h2 class='section-title'>Full Telemetry Archive</h2>", unsafe_allow_html=True)
+    with st.expander("ACCESS RAW DATASET"):
+        st.dataframe(df, use_container_width=True)
 
 if __name__ == "__main__":
-    main()
-
+    app()
 
