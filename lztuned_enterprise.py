@@ -1269,7 +1269,7 @@ def render_detection_report(report, detected, missing, noisy, confidence):
     # WHY explainer
     st.markdown("""
     <div class="why-box">
-        <b>💡 WHY THIS MATTERS:</b><br>
+        <b>WHY THIS MATTERS:</b><br>
         Channel detection este primul pas critic. Fără identificarea corectă a semnalelor, orice analiză ulterioară este inutilă. 
         Un semnal "noisy" poate indica cablaj defect, împământare proastă sau senzor în curs de defectare.
     </div>
@@ -1308,7 +1308,7 @@ def render_operating_modes(mode_summary, modes_df):
     
     st.markdown("""
     <div class="why-box">
-        <b>💡 WHY THIS MATTERS:</b><br>
+        <b>WHY THIS MATTERS:</b><br>
         Problemele apar rar uniform. De exemplu, knock-ul poate apărea DOAR în WOT @ 4500 RPM, nu la Idle. 
         Separarea pe regimuri îți arată EXACT unde e problema, nu doar "că există".
     </div>
@@ -1316,7 +1316,7 @@ def render_operating_modes(mode_summary, modes_df):
 
 def render_fuel_analysis(fuel_results):
     """Renderează analiza fuel detaliată"""
-    st.markdown("<h2 class='section-title'>⛽ Advanced Fuel System Analysis</h2>", unsafe_allow_html=True)
+    st.markdown("<h2 class='section-title'> Advanced Fuel System Analysis</h2>", unsafe_allow_html=True)
     
     col1, col2 = st.columns(2)
     
@@ -1473,7 +1473,7 @@ def render_ignition_analysis(ign_results):
         cause = ign_results['knock_cause']
         st.markdown(f"""
         <div class="why-box">
-            <b>🔍 KNOCK ROOT CAUSE ANALYSIS:</b><br>
+            <b>KNOCK ROOT CAUSE ANALYSIS:</b><br>
             Type: <b>{cause['type']}</b><br>
             {cause['explanation']}
         </div>
@@ -1563,7 +1563,7 @@ def render_thermal_analysis(thermal_results):
 
 def render_predictive_risk(risk_data):
     """Renderează analiza de risc predictivă"""
-    st.markdown("<h2 class='section-title'>🎯 Predictive Risk Assessment</h2>", unsafe_allow_html=True)
+    st.markdown("<h2 class='section-title'>Predictive Risk Assessment</h2>", unsafe_allow_html=True)
     
     risk_score = risk_data['risk_score']
     risk_level = risk_data['risk_level']
@@ -1653,7 +1653,7 @@ def app():
     # File Uploader Stilizat implicit
     _, col2, _ = st.columns([1, 2, 1])
     with col2:
-        file = st.file_uploader("📂 DRAG & DROP ECU LOG (.CSV)", type="csv")
+        file = st.file_uploader(" DRAG & DROP ECU LOG (.CSV)", type="csv")
     
     if not file:
         st.markdown("<div style='text-align:center; padding:50px; color:#4da3ff; font-family:Orbitron;'>SYSTEM IDLE - WAITING FOR DATA INPUT...</div>", unsafe_allow_html=True)
@@ -1747,6 +1747,7 @@ def app():
 
 if __name__ == "__main__":
     app()
+
 
 
 
