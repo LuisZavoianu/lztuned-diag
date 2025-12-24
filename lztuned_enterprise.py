@@ -1370,5 +1370,281 @@ def render_predictive_risk(risk_data):
     risk_score = risk_data['risk_score']
     risk_level = risk_data['risk_level']
     
+self.risk_factors.append({
+                    'factor': 'SUSTAINED_THERMAL_STRESS',
+                    'impact': 'MEDIUM',
+                    'consequence': 'Degradare prematură a uleiului și a garniturilor'
+                })
 
+        # Factor risc: Duty Cycle
+        if 'duty' in self.results:
+            duty = self.results['duty']
+            if duty.get('severity') == 'CRITICAL':
+                self.risk_score += 25
+                self.risk_factors.append({
+                    'factor': 'INJECTOR_SATURATION',
+                    'impact': 'HIGH',
+                    'consequence': 'Pierdere control amestec la turații mari, risc de amestec sărac'
+                })
 
+        self.risk_score = min(100, self.risk_score)
+        return self.risk_score, self.risk_factors
+
+# ======================================================
+# UI COMPONENTS: RENDERERS
+# ======================================================
+def render_resolution_card(title, severity, observation, action):
+    color = "#d90429" if severity == "CRITICAL" else "#f59e0b" if severity == "WARNING" else "#10b981"
+    icon = "🚨" if severity == "CRITICAL" else "⚠️" if severity == "WARNING" else "✅"
+    
+    st.markdown(f"""
+    <div class="resolution-box" style="border-top: 4px solid {color};">
+        <div class="res-title" style="color:{color};">{icon} {title}</div>
+        <div class="res-body">
+            <b>OBSERVAȚIE:</b> {observation}<br><br>
+            <div style="background: #ffffff; padding: 15px; border-radius: 8px; border: 1px dashed {color};">
+                <b style="color:#0b0f14;">RECOMANDARE TEHNICĂ:</b><br>{action}
+            </div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+# ======================================================
+# MAIN APPLICATION FLOW
+# ======================================================
+def main():
+    st.markdown("""
+    <div class="header-box">
+        <h1>LZTUNED ARCHITECT PRO</h1>
+        <p>ADVANCED ECU INTERPRETATION & DIAGNOSTIC ENGINE // v21.0</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    uploaded_file = st.sidebar.file_uploader("📂 Încărcați Log ECU (CSV)", type=["csv"])
+    
+    if uploaded_file:
+        # Load data
+        df = pd.read_csv(uploaded_file, sep=None, engine='python')
+        
+        # 1. Detection
+        detector = ChannelDetectionEngine(df)
+        channels = detector.detect_channels()
+        
+        # 2. Operating Modes
+        modes_engine = OperatingModeEngine(df, channels)
+        modes = modes_engine.detect_modes()
+        
+        # 3. Running Analysis Engines
+        fuel_engine = FuelAnalysisEngine(df, channels, modes)
+        fuel_results = fuel_engine.analyze()
+        
+        ign_engine = IgnitionAnalysisEngine(df, channels, modes)
+        ign_results = ign_engine.analyze()
+        
+        thermal_engine = ThermalStressEngine(df, channels)
+        thermal_results = thermal_engine.analyze()
+        
+        # 4. Predictive Risk
+        all_results = {**fuel_results, **ign_results, **thermal_results}
+        risk_engine = PredictiveRiskEngine(all_results)
+        risk_score, risk_factors = risk_engine.assess()
+
+        # --- DISPLAY: RISK DASHBOARD ---
+        st.markdown("<h2 class='section-title'>Evaluare Risc Global</h2>", unsafe_allow_html=True)
+        col_risk1, col_risk2 = st.columns([1, 2])
+        
+        with col_risk1:
+            fig_risk = go.Figure(go.Indicator(
+                mode = "gauge+number",
+                value = risk_score,
+                domain = {'x': [0, 1], 'y': [0, 1]},
+                title = {'text': "Engine Stress Score", 'font': {'family': "Orbitron", 'size': 14}},
+                gauge = {
+                    'axis': {'range': [0, 100], 'tickwidth': 1},
+                    'bar': {'color': "#d90429" if risk_score > 60 else "#f59e0b" if risk_score > 30 else "#10b981"},
+                    'steps': [
+                        {'range': [0, 30], 'color': "#e8f5e9"},
+                        {'range': [30, 70], 'color': "#fff3e0"},
+                        {'range': [70, 100], 'color': "#ffebee"}]
+                }
+            ))
+            fig_risk.update_layout(height=250, margin=dict(l=20, r=20, t=50, b=20))
+            st.plotly_chart(fig_risk, use_container_width=True)
+
+        with col_risk2:
+            st.markdown("<div style='padding-top:20px;'>", unsafe_allow_html=True)
+            for factor in risk_factors:
+                st.markdown(f"""
+                <div class="anomaly-alert">
+                    <b style="color:#d90429;">{factor['factor']}</b> | Impact: {factor['impact']}<br>
+                    <small>{factor['consequence']}</small>
+                </div>
+                """, unsafe_allow_html=True)
+            st.markdown("</div>", unsafe_allow_html=True)
+
+        # --- DISPLAY: RESOLUTIONS & CONCLUSIONS ---
+        st.markdown("<h2 class='section-title'>Rezoluții Tehnice și Concluzii</h2>", unsafe_allow_html=True)
+        
+        res_col1, res_col2 = st.columns(2)
+        
+        with res_col1:
+            # Rezoluție KNOCK
+            k_res = ign_results.get('knock', {})
+            if k_res.get('max_knock', 0) > 1.2:
+                render_resolution_card(
+                    "DETONAȚIE (KNOCK) DETECTATĂ",
+                    "CRITICAL",
+                    f"S-au detectat valori de până la {k_res['max_knock']}V. Pragul de siguranță de 1.2V a fost depășit de {k_res['events']} ori.",
+                    "REDUCERE AVANS: Scade Ignition Timing cu 2-4 grade în zonele de Load/RPM afectate. VERIFICARE COMBUSTIBIL: Asigură-te că cifra octanică corespunde hărții. VERIFICARE BUJII: Posibil grad termic necorespunzător."
+                )
+            else:
+                render_resolution_card("IGNITION STABILITY", "SAFE", "Nu s-au detectat evenimente de knock peste 1.2V.", "Parametrii de aprindere sunt optimi pentru configurația actuală.")
+
+         # ======================================================
+# CORE: PREDICTIVE RISK ENGINE (CONTINUARE)
+# ======================================================
+                self.risk_factors.append({
+                    'factor': 'SUSTAINED_THERMAL_LOAD',
+                    'impact': 'MEDIUM',
+                    'consequence': 'Degradare rapidă a uleiului și componentelor elastice'
+                })
+
+        self.risk_score = min(100, self.risk_score)
+        return self.risk_score, self.risk_factors
+
+# ======================================================
+# MAIN APPLICATION INTERFACE
+# ======================================================
+def main():
+    # Header Custom
+    st.markdown("""
+        <div class="header-box">
+            <h1>LZTUNED ARCHITECT PRO</h1>
+            <p>ADVANCED ECU INTERPRETATION ENGINE • VERSION 2.5</p>
+        </div>
+    """, unsafe_allow_html=True)
+
+    # Sidebar pentru Upload
+    with st.sidebar:
+        st.markdown("### 📥 Sursă Date")
+        uploaded_file = st.file_uploader("Încarcă Log ECU (CSV format)", type=['csv'])
+        
+        if uploaded_file:
+            st.success("Log încărcat cu succes!")
+            separator = st.selectbox("Separator", [",", ";", "\t"])
+            skip_rows = st.number_input("Sari peste rânduri (Header)", 0, 10, 0)
+
+    if not uploaded_file:
+        st.info("💡 Aștept încărcarea unui fișier de log pentru a începe analiza...")
+        return
+
+    # Procesare Date
+    df = pd.read_csv(uploaded_file, sep=separator, skiprows=skip_rows)
+    
+    # 1. Detecție Canale
+    detector = ChannelDetectionEngine(df)
+    channels = detector.detect_channels()
+    report = detector.get_report()
+
+    # Layout: Raport Detecție
+    col1, col2, col3, col4 = st.columns(4)
+    col1.metric("Canale Detectate", f"{report['detected']}/{len(detector.CHANNEL_MAP)}")
+    col2.metric("Acoperire", f"{report['coverage']:.0f}%")
+    col3.metric("Zgomot Semnal", report['noisy'])
+    col4.metric("Lipsă", report['missing'])
+
+    if 'rpm' not in channels or 'load' not in channels:
+        st.error("❌ Canalele critice (RPM, Load) nu au fost găsite. Verifică header-ul CSV-ului.")
+        return
+
+    # 2. Execuție Motoare Analiză
+    mode_eng = OperatingModeEngine(df, channels)
+    modes = mode_eng.detect_modes()
+    
+    fuel_eng = FuelAnalysisEngine(df, channels, modes)
+    fuel_results = fuel_eng.analyze()
+    
+    ign_eng = IgnitionAnalysisEngine(df, channels, modes)
+    ign_results = ign_eng.analyze()
+    
+    thermal_eng = ThermalStressEngine(df, channels)
+    thermal_results = thermal_eng.analyze()
+    
+    # 3. Scor de Risc
+    risk_eng = PredictiveRiskEngine({**fuel_results, **ign_results, **thermal_results})
+    risk_score, risk_factors = risk_eng.assess()
+
+    # UI: DASHBOARD CENTRAL
+    st.markdown('<div class="section-title">Diagnostic General & Risc</div>', unsafe_allow_html=True)
+    
+    r_col1, r_col2 = st.columns([1, 2])
+    
+    with r_col1:
+        # Indicator vizual risc
+        risk_color = "red" if risk_score > 60 else "orange" if risk_score > 30 else "green"
+        st.markdown(f"""
+            <div class="resolution-box" style="border-top: 5px solid {risk_color}">
+                <div class="res-title">SCOR GLOBAL RISC</div>
+                <h2 style="color:{risk_color}; font-size: 48px; margin:0;">{risk_score}%</h2>
+                <p class="res-body">Probabilitate de defecțiune mecanică bazată pe log.</p>
+            </div>
+        """, unsafe_allow_html=True)
+
+    with r_col2:
+        for factor in risk_factors:
+            st.markdown(f"""
+                <div class="anomaly-alert">
+                    <strong>⚠️ {factor['factor']}</strong> ({factor['impact']})<br/>
+                    <small>{factor['consequence']}</small>
+                </div>
+            """, unsafe_allow_html=True)
+
+    # 4. ANALIZĂ DETALIATĂ PE MODULE
+    st.markdown('<div class="section-title">Analiză Detaliată Module</div>', unsafe_allow_html=True)
+    
+    m_col1, m_col2, m_col3 = st.columns(3)
+
+    with m_col1:
+        st.markdown("### ⛽ Fueling")
+        res = fuel_results.get('lambda', {})
+        if res.get('status') == 'LEAN_DANGER':
+            st.error(f"AMESTEC SĂRAC: {res.get('mean_wot')}λ")
+        elif res.get('status') == 'OPTIMAL':
+            st.success(f"AMESTEC OPTIM: {res.get('mean_wot')}λ")
+        
+        duty = fuel_results.get('duty', {})
+        st.write(f"**Max Injector Duty:** {duty.get('max_duty')}%")
+        st.progress(min(duty.get('max_duty', 0)/100, 1.0))
+
+    with m_col2:
+        st.markdown("### ⚡ Ignition")
+        knk = ign_results.get('knock', {})
+        if knk.get('severity') == 'CRITICAL':
+            st.error(f"DETONAȚIE SEVERĂ: {knk.get('max_knock')}V")
+        else:
+            st.success("Nivel Detonație Safe")
+        
+        st.write(f"Evenimente knock detectate: {knk.get('events', 0)}")
+
+    with m_col3:
+        st.markdown("### 🌡️ Thermal")
+        oil = thermal_results.get('oil', {})
+        st.metric("Temp. Max Ulei", f"{oil.get('max', 'N/A')} °C", 
+                  delta=oil.get('max', 0)-100, delta_color="inverse")
+
+    # 5. VIZUALIZARE GRAFICĂ (Plotly)
+    st.markdown('<div class="section-title">Analiză Grafică Interactivă</div>', unsafe_allow_html=True)
+    
+    # Selector pentru ce vrem să vedem pe grafic
+    available_cols = list(channels.values())
+    selected_cols = st.multiselect("Selectează canale pentru grafic", available_cols, 
+                                   default=[channels.get('rpm'), channels.get('boost')] if 'boost' in channels else [available_cols[0]])
+
+    if selected_cols:
+        fig = px.line(df, y=selected_cols, template="plotly_white", 
+                      color_discrete_sequence=['#d90429', '#0b0f14', '#34a853', '#4285f4'])
+        fig.update_layout(height=500, hovermode="x unified")
+        st.plotly_chart(fig, use_container_width=True)
+
+if __name__ == "__main__":
+    main()
