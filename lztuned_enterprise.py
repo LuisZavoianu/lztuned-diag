@@ -379,7 +379,6 @@ class ChannelDetectionEngine:
         return self.detected
     
     def _assess_signal_quality(self, col):
-        """Evaluează calitatea semnalului pentru o coloană"""
         data = self.df[col].dropna()
         
         if len(data) == 0:
@@ -407,7 +406,6 @@ class ChannelDetectionEngine:
         return max(0, min(100, confidence))
     
     def get_report(self):
-        """Returnează raport detaliat despre detectare"""
         total_possible = len(self.CHANNEL_MAP)
         detected_count = len(self.detected)
         
@@ -425,7 +423,6 @@ class ChannelDetectionEngine:
 # CORE: OPERATING MODE DETECTION ENGINE
 # ======================================================
 class OperatingModeEngine:
-    """Identifică regimurile de funcționare ale motorului"""
     
     def __init__(self, df, channels):
         self.df = df
@@ -433,7 +430,6 @@ class OperatingModeEngine:
         self.modes = pd.DataFrame(index=df.index)
         
     def detect_modes(self):
-        """Detectează toate regimurile de funcționare"""
         rpm = self._get_channel('rpm', 0)
         load = self._get_channel('load', 0)
         tps = self._get_channel('tps', 0)
@@ -469,14 +465,12 @@ class OperatingModeEngine:
         return self.modes
     
     def _get_channel(self, name, default):
-        """Helper pentru a obține canal cu fallback"""
         if name in self.channels:
             col = self.channels[name]
             return self.df[col].fillna(default)
         return pd.Series(default, index=self.df.index)
     
     def get_mode_summary(self):
-        """Returnează statistici despre regimuri"""
         summary = {}
         for mode in self.modes.columns:
             count = self.modes[mode].sum()
@@ -488,7 +482,6 @@ class OperatingModeEngine:
 # CORE: ADVANCED FUEL ANALYSIS ENGINE
 # ======================================================
 class FuelAnalysisEngine:
-    """Analiză avansată a sistemului de alimentare"""
     
     def __init__(self, df, channels, modes):
         self.df = df
@@ -497,7 +490,6 @@ class FuelAnalysisEngine:
         self.results = {}
         
     def analyze(self):
-        """Rulează analiza completă de fuel"""
         self._analyze_lambda()
         self._analyze_injector_duty()
         self._analyze_fuel_trims()
@@ -506,7 +498,6 @@ class FuelAnalysisEngine:
         return self.results
     
     def _analyze_lambda(self):
-        """Analiză Lambda cu separare pe regimuri"""
         l1 = self._get_channel('lambda1')
         l2 = self._get_channel('lambda2')
         
@@ -555,7 +546,6 @@ class FuelAnalysisEngine:
             }
     
     def _analyze_injector_duty(self):
-        """Analiză duty cycle injectoare"""
         inj_time = self._get_channel('inj_time')
         rpm = self._get_channel('rpm')
         
@@ -600,7 +590,6 @@ class FuelAnalysisEngine:
         }
     
     def _analyze_fuel_trims(self):
-        """Analiză fuel trim (STFT/LTFT)"""
         stft = self._get_channel('stft')
         ltft = self._get_channel('ltft')
         
@@ -629,7 +618,6 @@ class FuelAnalysisEngine:
             }
     
     def _analyze_linearity(self):
-        """Verifică liniaritatea fuel delivery"""
         if 'Inj_Duty' not in self.df.columns or 'Lambda_Avg' not in self.df.columns:
             return
         
@@ -649,7 +637,6 @@ class FuelAnalysisEngine:
                 }
     
     def _get_channel(self, name):
-        """Helper cu None fallback"""
         if name in self.channels:
             return self.df[self.channels[name]]
         return None
@@ -658,7 +645,6 @@ class FuelAnalysisEngine:
 # CORE: ADVANCED IGNITION ANALYSIS ENGINE
 # ======================================================
 class IgnitionAnalysisEngine:
-    """Analiză avansată a sistemului de aprindere"""
     
     def __init__(self, df, channels, modes):
         self.df = df
@@ -667,7 +653,6 @@ class IgnitionAnalysisEngine:
         self.results = {}
         
     def analyze(self):
-        """Rulează analiza completă de ignition"""
         self._analyze_knock()
         self._analyze_timing_stability()
         self._analyze_knock_correlation()
@@ -675,7 +660,6 @@ class IgnitionAnalysisEngine:
         return self.results
     
     def _analyze_knock(self):
-        """Analiză detonație cu clustering și threshold adaptat"""
         k1 = self._get_channel('knock1')
         k2 = self._get_channel('knock2')
         
@@ -730,7 +714,6 @@ class IgnitionAnalysisEngine:
         }
     
     def _analyze_timing_stability(self):
-        """Analiză stabilitate avans la aprindere"""
         timing = self._get_channel('ignition_timing')
         
         if timing is None:
@@ -756,7 +739,6 @@ class IgnitionAnalysisEngine:
             }
     
     def _analyze_knock_correlation(self):
-        """Analiză corelație knock cu alți parametri"""
         if 'Knock_Peak' not in self.df.columns:
             return
         
@@ -1733,6 +1715,7 @@ def app():
 
 if __name__ == "__main__":
     app()
+
 
 
 
