@@ -1394,5 +1394,4 @@ def render_predictive_risk(risk_data):
                 {'range': [40, 70], 'color': "#ffe8cc"},
                 {'range': [70, 100], 'color': "#ffe0e0"}
             ],
-            'threshold': {
-                'line': {'color': "red", 'width
+
