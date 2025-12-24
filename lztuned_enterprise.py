@@ -365,8 +365,7 @@ class ChannelDetectionEngine:
         self.confidence = {}
         
     def detect_channels(self):
-        """Mapează automat coloanele din CSV către canale standard"""
-        for std_name, variants in self.CHANNEL_MAP.items():
+            for std_name, variants in self.CHANNEL_MAP.items():
             found = False
             for variant in variants:
                 if variant in self.df.columns:
@@ -1734,6 +1733,7 @@ def app():
 
 if __name__ == "__main__":
     app()
+
 
 
 
