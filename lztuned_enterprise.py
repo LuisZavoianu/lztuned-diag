@@ -1242,7 +1242,7 @@ def render_detection_report(report, detected, missing, noisy, confidence):
     # Detalii detectare
     st.markdown("""
     <div class="detection-box">
-        <h4 style="margin-top:0;">🔍 Detection Details</h4>
+        <h4 style="margin-top:0;">Detection Details</h4>
     """, unsafe_allow_html=True)
     
     if detected:
@@ -1747,6 +1747,7 @@ def app():
 
 if __name__ == "__main__":
     app()
+
 
 
 
