@@ -10,19 +10,19 @@
 
 ---
 
-### 📑 Overview
+### Overview
 **LZTuned Architect Pro** is a professional-grade ECU log interpretation engine designed for motorsport teams, professional tuners, and advanced automotive enthusiasts. 
 
 The software transforms raw telemetry data into high-level diagnostic intelligence, identifying mechanical risks before they lead to engine failure.
 
-* ✅ **Universal Support:** Petrol, E85, Diesel, Naturally Aspirated (NA), Turbo, and Twin-Turbo configurations.
-* ✅ **Compatibility:** Processes CSV logs from OEM and Standalone ECUs (Ecumaster, MaxxECU, Link, Haltech, Bosch, etc.).
+*  **Universal Support:** Petrol, E85, Diesel, Naturally Aspirated (NA), Turbo, and Twin-Turbo configurations.
+*  **Compatibility:** Processes CSV logs from OEM and Standalone ECUs (Ecumaster, MaxxECU, Link, Haltech, Bosch, etc.).
 
-🔗 **Live Demo:** [lztuned-pro.streamlit.app](https://lztuned-pro.streamlit.app/)
+ **Live Demo:** [lztuned-pro.streamlit.app](https://lztuned-pro.streamlit.app/)
 
 ---
 
-### 🚀 Core Engine Features
+###  Core Engine Features
 
 #### 1️⃣ Intelligent Channel Detection
 The system automatically identifies vital engine parameters using fuzzy matching and evaluates signal health:
@@ -48,7 +48,7 @@ Surgical precision in detecting combustion instability:
 
 ---
 
-### 📊 Analytics & Predictive Risk
+###  Analytics & Predictive Risk
 
 | Feature | Description |
 | :--- | :--- |
@@ -59,11 +59,11 @@ Surgical precision in detecting combustion instability:
 
 ---
 
-### 🌐 Deployment & Usage
+###  Deployment & Usage
 
 #### ☁️ Cloud Access (SaaS)
 Run the analysis instantly on any device via browser:  
-👉 [**Open LZTuned Pro Web App**](https://lztuned-pro.streamlit.app/)
+ [**Open LZTuned Pro Web App**](https://lztuned-pro.streamlit.app/)
 
 #### 💻 Local Installation
 For offline use on diagnostic laptops:
