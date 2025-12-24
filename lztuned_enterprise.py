@@ -1376,10 +1376,10 @@ self.risk_factors.append({
                     'consequence': 'Degradare prematură a uleiului și a garniturilor'
                 })
 
-        # Factor risc: Duty Cycle
-        if 'duty' in self.results:
+# Factor risc: Duty Cycle
+if 'duty' in self.results:
             duty = self.results['duty']
-            if duty.get('severity') == 'CRITICAL':
+if duty.get('severity') == 'CRITICAL':
                 self.risk_score += 25
                 self.risk_factors.append({
                     'factor': 'INJECTOR_SATURATION',
@@ -1648,3 +1648,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
