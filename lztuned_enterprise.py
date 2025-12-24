@@ -203,6 +203,52 @@ section[data-testid="stFileUploader"] {
     border-radius: 16px;
     padding: 30px;
 }
+
+# ======================================================
+# EXPERT THRESHOLD INTELLIGENCE (EXTENDED DATA)
+# ======================================================
+
+def get_expert_advice(sensor, value, wot_active):
+    """
+    Returnează (status, explicație, culoare) bazat pe praguri de motorsport.
+    """
+    # Definiții Praguri: (Min, Max, Unitate)
+    limits = {
+        'Motor RPM': (800, 7000, 'RPM'),
+        'Oil temp.': (80, 115, '°C'),
+        'Motor temp.': (75, 100, '°C'),
+        'Lambda_Avg': (0.76, 0.88, 'λ'), # Valabil doar pentru WOT
+        'Knock_Peak': (0, 2.0, 'V'),
+        'Battery voltage': (13.2, 14.8, 'V'),
+        'Inj_Duty': (0, 85, '%')
+    }
+
+    if sensor not in limits:
+        return "MONITORIZARE", "Parametru în limite de funcționare standard.", "#58a6ff"
+
+    min_v, max_v, unit = limits[sensor]
+    
+    # Logica pentru Lambda (doar în sarcină)
+    if sensor == 'Lambda_Avg' and not wot_active:
+        return "STOECHIOMETRIC", "Motorul este în Cruise Mode. Lambda 1.0 este normal.", "#8b949e"
+
+    if value > max_v:
+        if sensor == 'Inj_Duty':
+            return "CRITICAL", f"Peste {max_v}{unit}. Injectoarele nu se mai închid. Risc de amestec sărac la turații mari.", "#f85149"
+        if sensor == 'Knock_Peak':
+            return "PERICOL", f"Detonație detected ({value}V). Risc de spargere pistoane. Redu avansul!", "#f85149"
+        if sensor == 'Oil temp.':
+            return "WARNING", f"Ulei la {value}{unit}. Vâscozitatea scade periculos. Verifică răcitorul.", "#d29922"
+        return "HIGH", f"Valoare peste pragul optim de {max_v}{unit}.", "#d29922"
+
+    if value < min_v:
+        if sensor == 'Battery voltage':
+            return "LOW VOLTAGE", "Alternator sub-eficient. Poate afecta timpii de injecție (Deadtime).", "#f85149"
+        if sensor == 'Motor temp.':
+            return "COLD", "Motor sub temperatura de regim. Uzură mecanică crescută.", "#58a6ff"
+        return "LOW", f"Sub pragul minim de {min_v}{unit}.", "#58a6ff"
+
+    return "OPTIM", f"Funcționare nominală în parametri ({value:.2f} {unit}).", "#3fb950"
 </style>
 
 """, unsafe_allow_html=True)
@@ -374,5 +420,33 @@ def app():
     with st.expander("ACCESS RAW DATASET"):
         st.dataframe(df, use_container_width=True)
 
+def render_advanced_diagnostics(df):
+    st.markdown("<div class='section-title'>Advanced Threshold Intelligence</div>", unsafe_allow_html=True)
+    
+    # Luăm valorile de vârf pentru analiză
+    analysis_sensors = {
+        'Motor RPM': df['Motor RPM'].max(),
+        'Inj_Duty': df['Inj_Duty'].max() if 'Inj_Duty' in df.columns else 0,
+        'Knock_Peak': df['Knock_Peak'].max() if 'Knock_Peak' in df.columns else 0,
+        'Lambda_Avg': df[df['WOT']]['Lambda_Avg'].mean() if not df[df['WOT']].empty else 1.0,
+        'Oil temp.': df['Oil temp.'].max() if 'Oil temp.' in df.columns else 0,
+        'Battery voltage': df['Battery voltage'].min() if 'Battery voltage' in df.columns else 0
+    }
+
+    cols = st.columns(3)
+    for i, (sensor, val) in enumerate(analysis_sensors.items()):
+        status, desc, color = get_expert_advice(sensor, val, not df[df['WOT']].empty)
+        
+        with cols[i % 3]:
+            st.markdown(f"""
+            <div style="background:{color}15; border:1px solid {color}44; padding:20px; border-radius:12px; margin-bottom:20px; height:200px;">
+                <div style="color:{color}; font-family:Orbitron; font-weight:900; font-size:14px; margin-bottom:5px;">{sensor.upper()}</div>
+                <div style="font-size:24px; font-weight:700;">{val:.2f}</div>
+                <div style="background:{color}; color:white; display:inline-block; padding:2px 8px; border-radius:4px; font-size:10px; font-weight:900; margin-bottom:10px;">{status}</div>
+                <div style="font-size:13px; opacity:0.9; line-height:1.4;">{desc}</div>
+            </div>
+            """, unsafe_allow_html=True)
+            
 if __name__ == "__main__":
     app()
+
