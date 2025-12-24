@@ -4,375 +4,251 @@ import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
+from scipy import stats
+from collections import defaultdict
+import warnings
+import base64
+from io import BytesIO
 
-# ======================================================
-# CONFIG
+warnings.filterwarnings('ignore')
+
+# ====================================================== 
+# CONFIGURATION & STYLING
 # ======================================================
 st.set_page_config(
-    page_title="LZTuned Architect Ultimate v20.0",
+    page_title="LZTuned Architect Pro - ECU Interpretation Engine",
     layout="wide",
-    initial_sidebar_state="collapsed"
+    initial_sidebar_state="expanded"
 )
 
-# ======================================================
-# ULTIMATE UX/UI - MOTORSPORT COMMAND CENTER
-# ======================================================
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Orbitron:wght@700;900&display=swap');
 
-/* =========================
-   GLOBAL BASE
-========================= */
-.main {
-    background: #ffffff;
-}
+.stApp { background: #ffffff; }
+html, body, [class*="css"] { font-family: 'Inter', sans-serif; color: #0b0f14; }
 
-html, body, [class*="css"] {
-    font-family: 'Inter', sans-serif;
-    color: #0b0f14;
-}
+.header-box { background: linear-gradient(180deg, #ffffff 0%, #f1f3f5 100%);
+             padding: 50px 20px; border-bottom: 1px solid #dee2e6; text-align: center; margin: -60px -4rem 40px; }
+.header-box h1 { font-family: 'Orbitron', sans-serif; font-size: 42px; font-weight: 900; color: #0b0f14; margin: 0; letter-spacing: -1px; }
+.header-box p { font-size: 13px; color: #6c757d; letter-spacing: 3px; margin-top: 8px; }
 
-/* =========================
-   HEADER – PREMIUM / APPLE STYLE
-========================= */
-.header-box {
-    background: linear-gradient(
-        180deg,
-        #ffffff 0%,
-        #f5f6f8 100%
-    );
-    padding: 70px 20px 60px;
-    margin: -60px -4rem 60px;
-    border-bottom: 1px solid #e5e7eb;
-    text-align: center;
-}
+.section-title { font-family: 'Orbitron', sans-serif; font-size: 16px; letter-spacing: 2px;
+                 margin: 40px 0 20px; padding-left: 12px; border-left: 5px solid #d90429; color: #0b0f14; text-transform: uppercase; }
 
-.header-box h1 {
-    font-family: 'Orbitron', sans-serif;
-    font-size: clamp(28px, 5vw, 46px);
-    font-weight: 700;
-    letter-spacing: 3px;
-    margin-bottom: 10px;
-    color: #0b0f14;
-}
+.expert-card { background: #ffffff; border: 1px solid #e9ecef; padding: 20px; border-radius: 14px; min-height: 280px; box-shadow: 0 4px 10px rgba(0,0,0,0.02); }
+.resolution-box { background: #f8f9fa; border: 1px solid #dee2e6; padding: 25px; border-radius: 16px; margin-bottom: 20px; }
+.res-title { font-family: 'Orbitron', sans-serif; font-size: 14px; font-weight: 700; margin-bottom: 10px; }
+.res-body { font-size: 14px; line-height: 1.6; color: #495057; }
 
-.header-box p {
-    font-size: 13px;
-    letter-spacing: 3px;
-    color: #6b7280;
-    text-transform: uppercase;
-}
+.confidence-badge { display: inline-block; padding: 4px 12px; border-radius: 12px; font-size: 11px; font-weight: 700; letter-spacing: 1px; }
+.why-box { background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin-top: 15px; border-radius: 8px; }
+.detection-box { background: #e7f5ff; border: 1px solid #74c0fc; padding: 20px; border-radius: 12px; margin: 20px 0; }
+.anomaly-alert { background: #fff5f5; border-left: 4px solid #d90429; padding: 15px; margin: 10px 0; border-radius: 8px; }
 
-/* =========================
-   SECTION TITLES
-========================= */
-.section-title {
-    font-family: 'Orbitron', sans-serif;
-    font-size: 18px;
-    letter-spacing: 2px;
-    margin: 60px 0 30px;
-    padding-left: 14px;
-    border-left: 4px solid #d90429;
-    color: #0b0f14;
-    text-transform: uppercase;
-}
-
-/* =========================
-   KPI METRICS
-========================= */
-div[data-testid="stMetric"] {
-    background: #ffffff;
-    border: 1px solid #e5e7eb;
-    border-radius: 14px;
-    padding: 24px !important;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.04);
-}
-
-div[data-testid="stMetricLabel"] {
-    font-family: 'Orbitron', sans-serif !important;
-    font-size: 11px !important;
-    letter-spacing: 2px;
-    color: #6b7280 !important;
-}
-
-div[data-testid="stMetricValue"] {
-    font-size: 28px !important;
-    font-weight: 700 !important;
-    color: #0b0f14 !important;
-}
-
-/* =========================
-   ALERTS / VERDICT
-========================= */
-.alert-container {
-    background: #ffffff;
-    border-radius: 16px;
-    padding: 28px;
-    margin-bottom: 24px;
-    border: 1px solid #e5e7eb;
-}
-
-.alert-critical {
-    border-left: 6px solid #dc2626;
-}
-
-.alert-warning {
-    border-left: 6px solid #f59e0b;
-}
-
-.alert-ok {
-    border-left: 6px solid #16a34a;
-}
-
-.alert-header {
-    font-family: 'Orbitron', sans-serif;
-    font-size: 20px;
-    font-weight: 700;
-    margin-bottom: 10px;
-}
-
-.alert-body {
-    font-size: 15px;
-    color: #374151;
-}
-
-.alert-action {
-    margin-top: 14px;
-    padding: 14px;
-    background: #f5f6f8;
-    border-radius: 10px;
-    font-size: 13px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
-/* =========================
-   EXPANDERS
-========================= */
-.streamlit-expanderHeader {
-    background: #f5f6f8 !important;
-    border-radius: 12px !important;
-    border: 1px solid #e5e7eb !important;
-    font-weight: 600 !important;
-}
-
-/* =========================
-   SENSOR CARD
-========================= */
-.sensor-card {
-    background: #ffffff;
-    border: 1px solid #e5e7eb;
-    border-radius: 14px;
-    padding: 20px;
-    font-size: 14px;
-    line-height: 1.6;
-}
-
-/* =========================
-   TABS – CLEAN / PREMIUM
-========================= */
-.stTabs [data-baseweb="tab-list"] {
-    gap: 10px;
-    background: transparent;
-}
-
-.stTabs [data-baseweb="tab"] {
-    background: #f5f6f8 !important;
-    border-radius: 10px;
-    padding: 10px 24px;
-    font-family: 'Orbitron', sans-serif;
-    font-size: 12px;
-    letter-spacing: 2px;
-    color: #6b7280 !important;
-}
-
-.stTabs [aria-selected="true"] {
-    background: #ffffff !important;
-    border: 1px solid #e5e7eb !important;
-    color: #0b0f14 !important;
-}
-
-/* =========================
-   FILE UPLOADER
-========================= */
-section[data-testid="stFileUploader"] {
-    background: #f9fafb;
-    border: 2px dashed #d1d5db;
-    border-radius: 16px;
-    padding: 30px;
-}
 </style>
-
 """, unsafe_allow_html=True)
 
-# ======================================================
-# DATA DICTIONARY (UNCHANGED)
-# ======================================================
-SENSOR_DESCRIPTIONS = {
-    "Motor RPM": "Viteza de rotație a arborelui cotit. Esențială pentru axa X în hărțile de tuning.",
-    "Engine load": "Sarcina motorului. Indică volumul de aer raportat la capacitatea cilindrică.",
-    "Air mass": "Cantitatea de aer absorbită. Determinantă pentru calculul amestecului (MAF).",
-    "Ignition angle": "Momentul scânteii. Valorile prea mici indică retard cauzat de detonație.",
-    "Injection time": "Durata deschiderii injectoarelor (ms). Peste 20ms indică saturație.",
-    "Knock sensor #1": "Senzor piezo care detectează vibrații de detonație în bloc.",
-    "Motor temp.": "Temperatura antigelului. Optim: 85-95°C.",
-    "Oil temp.": "Temperatura uleiului. Peste 115°C necesită răcire suplimentară.",
-    "Battery voltage": "Tensiunea sistemului. Trebuie să fie stabilă (>13.5V în mers)."
-}
+st.markdown('<div class="header-box"><h1>LZTuned Architect Pro</h1><p>ECU Interpretation Engine</p></div>', unsafe_allow_html=True)
 
 # ======================================================
-# UTILS & DATA ENGINE (UNCHANGED)
+# FILE UPLOAD
 # ======================================================
-def safe_col(df, name):
-    if name not in df.columns:
-        df[name] = np.nan
-    return df[name]
+st.sidebar.header("Load ECU Log CSV")
+uploaded_file = st.sidebar.file_uploader("Choose CSV", type="csv")
 
-def compute_channels(df: pd.DataFrame) -> pd.DataFrame:
-    rpm = safe_col(df, 'Motor RPM').replace(0, np.nan)
-    df['Inj_Duty'] = (safe_col(df, 'Injection time') * rpm) / 1200
-    df['Lambda_Avg'] = (safe_col(df, 'Lambda #1 integrator ') + safe_col(df, 'Lambda #2 integrator')) / 2
-    df['VE_Calculated'] = (safe_col(df, 'Air mass') * 100) / (rpm * 0.16 + 1)
-    df['Knock_Peak'] = df[['Knock sensor #1', 'Knock sensor #2']].max(axis=1)
-    df['WOT'] = (safe_col(df, 'Engine load') > 70) & (rpm > 3000)
-    return df
+ecu_type = st.sidebar.selectbox("Select ECU Type", ["ECUMaster", "MaxxECU", "Link"], index=0)
+profile_mode = st.sidebar.selectbox("Select Driving Mode", ["Street", "Track", "Drift"], index=0)
 
-def get_diagnostics(df):
-    wot = df[df['WOT']]
-    reports = []
-    duty_max = df['Inj_Duty'].max()
-    lambda_wot = wot['Lambda_Avg'].mean() if not wot.empty else 0
+if uploaded_file is None:
+    st.info("Upload a CSV log to start analysis")
+    st.stop()
 
-    if duty_max > 90:
-        reports.append(("FUEL SYSTEM", "HARD LIMIT", f"Duty Cycle at {duty_max:.1f}%", "Injector capacity exceeded. Hardware upgrade required."))
-    elif lambda_wot > 0.88:
-        reports.append(("FUEL SYSTEM", "CRITICAL", f"WOT Lambda {lambda_wot:.2f}", "Lean mixture under load. Enrich fueling maps immediately."))
-    else:
-        reports.append(("FUEL SYSTEM", "OK", "Fuel delivery within optimal parameters.", "No correction required."))
-
-    k_peak = df['Knock_Peak'].max()
-    if k_peak > 2.2:
-        reports.append(("IGNITION SYSTEM", "CRITICAL", f"Knock Peak {k_peak:.2f} V", "Active detonation. Reduce ignition advance by 2–4 degrees."))
-    else:
-        reports.append(("IGNITION SYSTEM", "OK", "No dangerous knock detected.", "Ignition strategy is stable."))
-
-    oil = df['Oil temp.'].max()
-    if oil > 112:
-        reports.append(("THERMAL MANAGEMENT", "WARNING", f"Oil temperature {oil:.1f} °C", "Cooling efficiency insufficient during sustained load."))
-    else:
-        reports.append(("THERMAL MANAGEMENT", "OK", "Thermal behavior within safe limits.", "Cooling system operating nominally."))
-    return reports
+df = pd.read_csv(uploaded_file)
+st.success(f"CSV Loaded: {uploaded_file.name} ({len(df)} rows)")
 
 # ======================================================
-# APP
+# CHANNEL DETECTION ENGINE
 # ======================================================
-def app():
-    st.markdown("""
-    <div class="header-box">
-        <h1>LZTUNED ARCHITECT</h1>
-        <p>Motorsport ECU Diagnostic Platform // v20.0</p>
-        <div style="font-size: 10px; opacity: 0.5; margin-top: 15px; letter-spacing: 2px;">
-            ENGINEERED BY LUIS ZAVOIANU // APPLICATION ENGINEER
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-
-    # File Uploader Stilizat implicit
-    _, col2, _ = st.columns([1, 2, 1])
-    with col2:
-        file = st.file_uploader("📂 DRAG & DROP ECU LOG (.CSV)", type="csv")
+class ChannelDetectionEngine:
+    """Detectează și normalizează coloanele din orice log ECU"""
     
-    if not file:
-        st.markdown("<div style='text-align:center; padding:50px; color:#4da3ff; font-family:Orbitron;'>SYSTEM IDLE - WAITING FOR DATA INPUT...</div>", unsafe_allow_html=True)
-        return
-
-    df_raw = pd.read_csv(file, sep=';')
-    df = compute_channels(df_raw)
-    all_cols = df.columns.tolist()
-
-    # KPI DASHBOARD
-    st.markdown("<h2 class='section-title'>Engine Performance Telemetry</h2>", unsafe_allow_html=True)
-    k = st.columns(4)
-    k[0].metric("MAX RPM", f"{int(df['Motor RPM'].max())}")
-    k[1].metric("AIR MASS", f"{df['Air mass'].max():.1f}")
-    k[2].metric("INJ DUTY", f"{df['Inj_Duty'].max():.1f}%")
-    k[3].metric("IGNITION", f"{df['Ignition angle'].min():.1f}°")
-
-    # VERDICT & CRITICAL ALERTS
-    st.markdown("<h2 class='section-title'>System Verdict & Safety Status</h2>", unsafe_allow_html=True)
-    
-    diagnostics = get_diagnostics(df)
-    for title, level, obs, action in diagnostics:
-        if level in ["CRITICAL", "HARD LIMIT"]:
-            alert_class, icon = "alert-critical", "❌"
-        elif level == "WARNING":
-            alert_class, icon = "alert-warning", "⚠️"
-        else:
-            alert_class, icon = "alert-ok", "✅"
-
-        st.markdown(f"""
-        <div class="alert-container {alert_class}">
-            <div class="alert-header">{icon} {title} // {level}</div>
-            <div class="alert-body"><b>TELEMETRY OBS:</b> {obs}</div>
-            <div class="alert-action">REQUIRED: {action}</div>
-        </div>
-        """, unsafe_allow_html=True)
-
-    # SENSOR FORENSICS
-    st.markdown("<h2 class='section-title'>Sensor Forensics Analysis</h2>", unsafe_allow_html=True)
-    tabs = st.tabs(["[ COMB ]", "[ FLOW ]", "[ TEMP ]", "[ ELEC ]"])
-
-    group_map = {
-        0: ['Motor RPM', 'Ignition angle', 'Knock sensor #1', 'Knock sensor #2', 'Lambda_Avg', 'Injection time'],
-        1: ['Air mass', 'Engine load', 'Throttle position', 'VE_Calculated'],
-        2: ['Motor temp.', 'Oil temp.', 'Intake temp.'],
-        3: ['Battery voltage', 'Electric fan speed', 'Gear']
+    CHANNEL_MAP = {
+        'rpm': ['Motor RPM', 'RPM', 'Engine RPM', 'EngineRPM', 'rpm'],
+        'load': ['Engine load', 'Load', 'Engine Load', 'MAP', 'Manifold Pressure'],
+        'lambda1': ['Lambda #1 integrator ', 'Lambda 1', 'AFR 1', 'Lambda#1', 'O2 Sensor 1'],
+        'lambda2': ['Lambda #2 integrator', 'Lambda 2', 'AFR 2', 'Lambda#2', 'O2 Sensor 2'],
+        'knock1': ['Knock sensor #1', 'Knock 1', 'KnockSensor1', 'Knock #1'],
+        'knock2': ['Knock sensor #2', 'Knock 2', 'KnockSensor2', 'Knock #2'],
+        'inj_time': ['Injection time', 'Injector PW', 'Pulse Width', 'InjTime'],
+        'oil_temp': ['Oil temp.', 'Oil Temp', 'Oil Temperature', 'OilTemp'],
+        'coolant_temp': ['Coolant temp.', 'Coolant Temp', 'Water Temp', 'ECT'],
+        'iat': ['IAT', 'Intake Air Temp', 'Air Temp', 'IntakeTemp'],
+        'egt1': ['EGT 1', 'Exhaust Gas Temp 1', 'EGT#1'],
+        'egt2': ['EGT 2', 'Exhaust Gas Temp 2', 'EGT#2'],
+        'boost': ['Boost', 'Turbo Pressure', 'Manifold Pressure'],
+        'fuel_pressure': ['Fuel Pressure', 'FuelPress', 'Rail Pressure'],
+        'ignition_timing': ['Ignition timing', 'Timing', 'Spark Advance', 'IgnTiming'],
+        'battery_voltage': ['Battery voltage', 'Voltage', 'Batt V', 'VBatt'],
+        'tps': ['TPS', 'Throttle Position', 'Throttle %'],
+        'stft': ['STFT', 'Short Term Fuel Trim', 'FuelTrimShort'],
+        'ltft': ['LTFT', 'Long Term Fuel Trim', 'FuelTrimLong'],
     }
+    
+    def __init__(self, df):
+        self.df = df
+        self.detected = {}
+        self.missing = []
+        self.noisy = []
+        self.confidence = {}
+        
+    def detect_channels(self):
+        """Mapează automat coloanele din CSV către canale standard"""
+        for std_name, variants in self.CHANNEL_MAP.items():
+            found = False
+            for variant in variants:
+                if variant in self.df.columns:
+                    self.detected[std_name] = variant
+                    self.confidence[std_name] = self._assess_signal_quality(variant)
+                    found = True
+                    break
+            if not found:
+                self.missing.append(std_name)
+        return self.detected
+    
+    def _assess_signal_quality(self, col):
+        """Evaluează calitatea semnalului pentru o coloană"""
+        data = self.df[col].dropna()
+        if len(data) == 0: return 0.0
+        null_pct = self.df[col].isnull().sum() / len(self.df) * 100
+        constant_check = data.std() == 0
+        flatline_pct = 0
+        if not constant_check:
+            consecutive_same = (data.diff() == 0).sum() / len(data) * 100
+            flatline_pct = consecutive_same
+        confidence = 100.0
+        confidence -= null_pct
+        if constant_check:
+            confidence = 0
+        elif flatline_pct > 50:
+            confidence -= 40
+            self.noisy.append(col)
+        return max(0, min(100, confidence))
+    
+    def get_report(self):
+        """Returnează raport detaliat despre detectare"""
+        total_possible = len(self.CHANNEL_MAP)
+        detected_count = len(self.detected)
+        report = {
+            'total_channels': len(self.df.columns),
+            'detected': detected_count,
+            'missing': len(self.missing),
+            'noisy': len(self.noisy),
+            'coverage': (detected_count / total_possible) * 100
+        }
+        return report
 
-    for tab, keys in zip(tabs, group_map.values()):
-        with tab:
-            st.write(" ")
-            for c in keys:
-                if c in df.columns:
-                    with st.expander(f"SCAN CHANNEL: {c.upper()}"):
-                        c1, c2 = st.columns([1, 2.5])
-                        with c1:
-                            st.markdown(f"<div class='sensor-card'><b>CHANNEL INFO:</b><br>{SENSOR_DESCRIPTIONS.get(c, 'Standard telemetry input.')}</div>", unsafe_allow_html=True)
-                            st.markdown(f"<div style='margin-top:20px; font-size:12px;'><b>PEAK RANGE:</b><br>{df[c].min()} — {df[c].max()}</div>", unsafe_allow_html=True)
-                        with c2:
-                            fig = px.line(df, x='time', y=c, template="plotly_dark", color_discrete_sequence=['#4da3ff'])
-                            fig.update_layout(height=250, margin=dict(l=0, r=0, t=10, b=10), 
-                                              paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)',
-                                              xaxis=dict(showgrid=False, zeroline=False), yaxis=dict(showgrid=True, gridcolor='#263041'))
-                            st.plotly_chart(fig, use_container_width=True)
+# ======================================================
+# DETECT CHANNELS
+# ======================================================
+channel_engine = ChannelDetectionEngine(df)
+channels = channel_engine.detect_channels()
+report = channel_engine.get_report()
 
-    # ADVANCED TELEMETRY
-    st.markdown("<h2 class='section-title'>Advanced Overlay & Correlation</h2>", unsafe_allow_html=True)
-    t1, t2 = st.tabs(["[ OVERLAY ]", "[ MATRIX ]"])
+st.markdown('<h3 class="section-title">Channel Detection Report</h3>', unsafe_allow_html=True)
+st.write(report)
+st.write("Detected Channels:", channels)
+if channel_engine.missing:
+    st.warning(f"Missing channels: {channel_engine.missing}")
+if channel_engine.noisy:
+    st.info(f"Noisy channels: {channel_engine.noisy}")
 
-    with t1:
-        selected = st.multiselect("Select Channels:", all_cols, default=['Motor RPM', 'Ignition angle', 'Knock_Peak'])
-        if selected:
-            fig = make_subplots(rows=len(selected), cols=1, shared_xaxes=True, vertical_spacing=0.02)
-            for i, s in enumerate(selected):
-                fig.add_trace(go.Scatter(x=df['time'], y=df[s], name=s, line=dict(color='#4da3ff', width=1.5)), row=i+1, col=1)
-            fig.update_layout(height=180*len(selected), template="plotly_dark", showlegend=True,
-                              paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)',
-                              margin=dict(l=0, r=0, t=20, b=20))
-            st.plotly_chart(fig, use_container_width=True)
+# ======================================================
+# MODES DETECTION
+# ======================================================
+class OperatingModeEngine:
+    """Detectează regimurile de funcționare ale motorului"""
+    
+    def __init__(self, df, channels):
+        self.df = df
+        self.channels = channels
+        self.modes = pd.DataFrame(index=df.index)
+        
+    def detect_modes(self):
+        rpm = self._get_channel('rpm', 0)
+        load = self._get_channel('load', 0)
+        tps = self._get_channel('tps', 0)
+        
+        self.modes['Idle'] = (rpm < 1500) & (load < 30)
+        self.modes['Cruise'] = (rpm >= 1500) & (rpm <= 4000) & (load >= 30) & (load <= 60)
+        if 'tps' in self.channels:
+            tps_rate = tps.diff().fillna(0)
+            self.modes['Acceleration'] = (tps_rate > 5) & (load > 40)
+        else:
+            load_rate = load.diff().fillna(0)
+            self.modes['Acceleration'] = (load_rate > 10) & (rpm > 2000)
+        self.modes['WOT'] = (load > 70) & (rpm > 3000)
+        if 'tps' in self.channels:
+            self.modes['Overrun'] = (tps < 5) & (rpm > 2000)
+        else:
+            self.modes['Overrun'] = (load < 20) & (rpm > 2000)
+        coolant = self._get_channel('coolant_temp', 0)
+        oil = self._get_channel('oil_temp', 0)
+        self.modes['Heat_Soak'] = (coolant > 95) | (oil > 110)
+        return self.modes
+    
+    def _get_channel(self, name, default):
+        if name in self.channels:
+            col = self.channels[name]
+            return self.df[col].fillna(default)
+        return pd.Series(default, index=self.df.index)
+    
+    def get_mode_summary(self):
+        summary = {}
+        for mode in self.modes.columns:
+            count = self.modes[mode].sum()
+            pct = (count / len(self.modes)) * 100
+            summary[mode] = {'count': int(count), 'percentage': round(pct, 1)}
+        return summary
 
-    with t2:
-        corr = df.select_dtypes(include=[np.number]).corr()
-        fig_corr = px.imshow(corr, text_auto=".2f", color_continuous_scale="RdBu_r", aspect="auto")
-        fig_corr.update_layout(height=600, template="plotly_dark", paper_bgcolor='rgba(0,0,0,0)')
-        st.plotly_chart(fig_corr, use_container_width=True)
+mode_engine = OperatingModeEngine(df, channels)
+modes_df = mode_engine.detect_modes()
+mode_summary = mode_engine.get_mode_summary()
+st.markdown('<h3 class="section-title">Operating Mode Summary</h3>', unsafe_allow_html=True)
+st.write(mode_summary)
 
-    # DATA TABLE
-    st.markdown("<h2 class='section-title'>Full Telemetry Archive</h2>", unsafe_allow_html=True)
-    with st.expander("ACCESS RAW DATASET"):
-        st.dataframe(df, use_container_width=True)
+# ======================================================
+# HEATMAP RPM vs LOAD
+# ======================================================
+st.markdown('<h3 class="section-title">RPM vs Load Heatmap</h3>', unsafe_allow_html=True)
+if 'rpm' in channels and 'load' in channels:
+    fig = px.density_heatmap(df, x=channels['rpm'], y=channels['load'], nbinsx=50, nbinsy=50,
+                             color_continuous_scale='Viridis')
+    fig.update_layout(height=500, width=900)
+    st.plotly_chart(fig)
 
-if __name__ == "__main__":
-    app()
+# ======================================================
+# PDF EXPORT
+# ======================================================
+def generate_pdf(df, report, mode_summary):
+    from fpdf import FPDF
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font("Arial", size=12)
+    pdf.cell(200, 10, txt="LZTuned ECU Analysis Report", ln=True, align="C")
+    pdf.ln(10)
+    pdf.cell(200, 10, txt=f"Channels detected: {len(channels)} / {len(ChannelDetectionEngine.CHANNEL_MAP)}", ln=True)
+    for mode, val in mode_summary.items():
+        pdf.cell(200, 10, txt=f"{mode}: {val['count']} points ({val['percentage']}%)", ln=True)
+    return pdf
+
+st.sidebar.markdown("### Export Options")
+if st.sidebar.button("Export PDF Report"):
+    pdf = generate_pdf(df, report, mode_summary)
+    pdf_buffer = BytesIO()
+    pdf.output(pdf_buffer)
+    b64 = base64.b64encode(pdf_buffer.getvalue()).decode()
+    href = f'<a href="data:application/octet-stream;base64,{b64}" download="LZTuned_Report.pdf">Download PDF</a>'
+    st.sidebar.markdown(href, unsafe_allow_html=True)
+
+st.success("Analysis Complete! ✅")
