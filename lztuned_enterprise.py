@@ -1358,9 +1358,6 @@ with col1:
             <div class="expert-card" style="border-top: 5px solid {color};">
                 <div style="color:{color}; font-weight:900; font-size:13px; font-family:Orbitron;">{duty['status']}</div>
                 <div style="font-size:11px; color:#6c757d;">INJECTOR DUTY CYCLE</div>
-                <div style="font-size:38px; font-weight:700; margin:12px 0;">{duty['max_duty']:.1f}%</div>
-                <div style="font-size:13px; line-height:1.5;">
-                    Linearity: {duty['linearity']:.2f}<br>
                     <span class='confidence-badge' style='background:#e7f5ff;color:#1971c2;margin-top:8px;'>
                         CONFIDENCE: {duty['confidence']}%
                     </span>
@@ -1419,10 +1416,6 @@ def render_ignition_analysis(ign_results):
             <div class="expert-card" style="border-top: 5px solid {color};">
                 <div style="color:{color}; font-weight:900; font-size:13px; font-family:Orbitron;">{knock['status']}</div>
                 <div style="font-size:11px; color:#6c757d;">KNOCK / DETONATION</div>
-                <div style="font-size:38px; font-weight:700; margin:12px 0;">{knock['max_knock']:.2f}V</div>
-                <div style="font-size:13px; line-height:1.5;">
-                    Mean: {knock['mean_knock']:.2f}V | Events: {knock['events']}<br>
-                    Event %: {knock['event_pct']:.1f}% | Bursts: {knock['bursts']}<br>
                     <span class='confidence-badge' style='background:#e7f5ff;color:#1971c2;margin-top:8px;'>
                         CONFIDENCE: {knock['confidence']}%
                     </span>
@@ -1458,9 +1451,6 @@ def render_ignition_analysis(ign_results):
             <div class="expert-card" style="border-top: 5px solid {color};">
                 <div style="color:{color}; font-weight:900; font-size:13px; font-family:Orbitron;">{timing['status']}</div>
                 <div style="font-size:11px; color:#6c757d;">TIMING STABILITY</div>
-                <div style="font-size:38px; font-weight:700; margin:12px 0;">{timing['std']:.1f}°</div>
-                <div style="font-size:13px; line-height:1.5;">
-                    Standard Deviation WOT<br>
                     <span class='confidence-badge' style='background:#e7f5ff;color:#1971c2;margin-top:8px;'>
                         CONFIDENCE: {timing['confidence']}%
                     </span>
@@ -1495,8 +1485,6 @@ def render_thermal_analysis(thermal_results):
             <div class="expert-card" style="border-top: 5px solid {color};">
                 <div style="color:{color}; font-weight:900; font-size:13px; font-family:Orbitron;">{oil['status']}</div>
                 <div style="font-size:11px; color:#6c757d;">OIL TEMPERATURE</div>
-                <div style="font-size:38px; font-weight:700; margin:12px 0;">{oil['max']:.0f}°C</div>
-                <div style="font-size:13px; line-height:1.5;">
                     Sustained High: {oil['sustained_high_min']:.1f} min
                 </div>
             </div>
@@ -1538,7 +1526,6 @@ def render_thermal_analysis(thermal_results):
             <div class="expert-card" style="border-top: 5px solid {color};">
                 <div style="color:{color}; font-weight:900; font-size:13px; font-family:Orbitron;">{egt['status']}</div>
                 <div style="font-size:11px; color:#6c757d;">EXHAUST GAS TEMP</div>
-                <div style="font-size:38px; font-weight:700; margin:12px 0;">{egt['max']:.0f}°C</div>
             </div>
             """, unsafe_allow_html=True)
             
@@ -1747,6 +1734,7 @@ def app():
 
 if __name__ == "__main__":
     app()
+
 
 
 
