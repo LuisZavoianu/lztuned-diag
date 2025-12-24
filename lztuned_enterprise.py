@@ -1391,7 +1391,7 @@ def render_motorsport_professional_ui(df, mapped):
 
     with dept_tab4:
         st.subheader("Driver Input DNA")
-        smoothness = DriverCoach.calculate_throttle_aggression(df[mappe
+        smoothness = DriverCoach.calculate_throttle_aggression(df[mappe])
 
 # ======================================================
 # MODULE 41: PUMPING LOSSES & VOLUMETRIC EFFICIENCY PRO
@@ -1531,4 +1531,5 @@ if __name__ == "__main__":
 # ======================================================
 # END OF LZTUNED ARCHITECT ULTIMATE V22.0
 # ======================================================
+
 
