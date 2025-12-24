@@ -1,3 +1,6 @@
+
+<img width="643" height="109" alt="image" src="https://github.com/user-attachments/assets/b43f767a-ad7e-44b5-8d13-9e949a80adcf" />
+
 LZTuned Architect Pro: Enterprise ECU Diagnostic Suite
 LZTuned Architect Pro is an advanced engine telemetry analysis and diagnostic platform engineered for calibration engineers (tuners) and motorsport teams. The software transforms raw ECU data logs into actionable insights, automatically identifying mechanical risks and performance optimization opportunities.
 
@@ -6,15 +9,20 @@ Live Demo: lztuned-pro.streamlit.app
  Key Features
 1. Expert Diagnostics (AI-Driven Oracle)
 Knock Analysis: Monitors piezo sensors and provides visual alerts for dangerous voltage spikes and detonation.
+<img width="1352" height="188" alt="image" src="https://github.com/user-attachments/assets/fa267a3b-ffe3-4fec-91b3-4190da3697d9" />
+<img width="1403" height="249" alt="image" src="https://github.com/user-attachments/assets/354c38fc-ebbd-47f9-ad93-584f93c2a614" />
 
 Safety Lambda: Calculates Bank-to-Bank deviation (Bank 1 vs. Bank 2) and verifies Air-Fuel Ratio (AFR) stability under Wide Open Throttle (WOT).
 
 Hardware Protection: Tracks Injector Duty Cycle (IDC) to prevent injector saturation and lean-out conditions.
+<img width="1512" height="247" alt="image" src="https://github.com/user-attachments/assets/ef05e190-4bbb-474a-8040-acecd75f63b9" />
 
 2. Advanced Engineering Lab
 Volumetric Efficiency (VE): Calculates cylinder filling percentage based on MAF/MAP, RPM, and Intake Air Temperature.
+<img width="418" height="242" alt="image" src="https://github.com/user-attachments/assets/8c26afcd-37ee-4a85-a66e-4e4f3987c160" />
 
 Heat Soak Recovery: Analyzes intercooler efficiency and the recovery rate of Intake Air Temperature (IAT) after high-load events.
+<img width="1397" height="191" alt="image" src="https://github.com/user-attachments/assets/dc102f1e-25f0-4559-a575-c24e28f68c3b" />
 
 Clutch Slip Detection: Identifies clutch or torque converter slippage through mathematical correlation between Engine RPM and Vehicle Speed (VSS).
 
