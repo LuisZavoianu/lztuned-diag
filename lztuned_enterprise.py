@@ -342,15 +342,6 @@ class ChannelDetectionEngine:
         'ltft': ['LTFT', 'Long Term Fuel Trim', 'FuelTrimLong'],
     }
 
-    def app():
-    st.markdown("""
-    <div class="header-box">
-        <h1>LZTUNED ARCHITECT</h1>
-        <p>Motorsport ECU Diagnostic Platform // v20.0</p>
-        <div style="font-size: 10px; opacity: 0.5; margin-top: 15px; letter-spacing: 2px;">
-            ENGINEERED BY LUIS ZAVOIANU // APPLICATION ENGINEER
-        </div>
-    </div>
     """, unsafe_allow_html=True)
 
     # File Uploader Stilizat implicit
@@ -1756,6 +1747,7 @@ def app():
 
 if __name__ == "__main__":
     app()
+
 
 
 
